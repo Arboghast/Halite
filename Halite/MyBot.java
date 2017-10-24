@@ -6,7 +6,7 @@ public class MyBot {
 
     public static void main(final String[] args) {
         final Networking networking = new Networking();
-        final GameMap gameMap = networking.initialize("Tamagocchi");
+        final GameMap gameMap = networking.initialize("The Destroyer");
         final ArrayList<Move> moveList = new ArrayList<>();
 
         for (;;) {
