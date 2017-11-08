@@ -1,0 +1,36 @@
+ --- Init ---
+The Destroyer
+ --- Bot used 86 milliseconds ---
+-----------------------------------------------------------------------------
+ --- Frame #1 ---
+t 3 7 290 t 4 7 292 t 5 7 292 
+ --- Bot used 7 milliseconds ---
+-----------------------------------------------------------------------------
+ --- Frame #2 ---
+t 3 7 289 t 4 7 288 t 5 7 292 
+ --- Bot used 1 milliseconds ---
+-----------------------------------------------------------------------------
+ --- Frame #3 ---
+t 3 5 290 t 4 7 290 t 5 7 282 
+ --- Bot used 0 milliseconds ---
+-----------------------------------------------------------------------------
+ --- Frame #4 ---
+d 3 0 t 4 1 287 t 5 4 302 
+ --- Bot used 1 milliseconds ---
+-----------------------------------------------------------------------------
+ --- Frame #5 ---
+Exception in thread "main" java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
+ --- Bot used 2 milliseconds ---
+ERRORED!
+ERROR: Bot #1: Received invalid character 'E'. (at character 1.)
+Input received from bot:
+Exception in thread "main" java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
+^
+Exception in thread "main" java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
+ --- Bot was killed. Below is the rest of its output (if any): ---
+	at java.util.ArrayList.rangeCheck(Unknown Source)
+	at java.util.ArrayList.get(Unknown Source)
+	at java.util.Collections$UnmodifiableList.get(Unknown Source)
+	at MyBot.main(MyBot.java:80)
+
+ --- End bot output ---

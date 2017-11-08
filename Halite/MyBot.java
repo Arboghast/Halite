@@ -1,5 +1,6 @@
 import hlt.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
@@ -11,20 +12,28 @@ public class MyBot {
         final Networking networking = new Networking();
         final GameMap gameMap = networking.initialize("The Destroyer");
         final ArrayList<Move> moveList = new ArrayList<>();
-        int i = 0;
+        Writer writer = new Writer("log.txt");
+        try {
+			writer.writeToFile("hello");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+  //    int i = 0;
         for (;;) {
             moveList.clear();
             gameMap.updateMap(Networking.readLineIntoMetadata());
-            i++;
+            //i++;
             for (final Ship ship : gameMap.getMyPlayer().getShips().values()) {
                 if (ship.getDockingStatus() != Ship.DockingStatus.Undocked) {
                     continue;
                 }
-                			//i 0-10 will be the start game code, separate from mid-game code
-                	final ThrustMove newThrustMove;
+                ThrustMove newThrustMove;
+                	
                 	Map<Double, Entity> everyEntityDistance = gameMap.nearbyEntitiesByDistance(ship);
+                	//if (entity instanceof ship)
                 	Map<Double, Entity> treeMap = new TreeMap<Double, Entity>(everyEntityDistance);
-                	Set<Double> keys = treeMap.keySet();
+                	Set<Double> keys = treeMap.keySet(); 
                 	for(Double key: keys){
                 		if(treeMap.get(key).getClass().equals(Ship.class))
                 		{
@@ -33,35 +42,47 @@ public class MyBot {
                 				if((ship.getDistanceTo(treeMap.get(key)) <= 10.0))
                 				{
                 					newThrustMove = new Navigation(ship,treeMap.get(key)).navigateTowards(gameMap, treeMap.get(key), 1, true, 90 , Math.PI/180);
-                					moveList.add(newThrustMove);
-                					break;
+                					if (newThrustMove != null)
+                					{
+                						moveList.add(newThrustMove);
+                    					break;
+                					}
                 				}
-                				newThrustMove = new Navigation(ship,treeMap.get(key)).navigateTowards(gameMap, treeMap.get(key), Constants.MAX_SPEED, true, 90 , Math.PI/180);
-            					moveList.add(newThrustMove);
-            					break;
+                				newThrustMove = new Navigation(ship,treeMap.get(key)).navigateTowards(gameMap, treeMap.get(key), Constants.MAX_SPEED, true, 90 , Math.PI/180); // can return null
+                				if (newThrustMove != null)
+            					{
+            						moveList.add(newThrustMove);
+                					break;
+            					}
                 			}	
                 			continue;
                 		}
-                		if(treeMap.get(key).getClass().equals(Planet.class))
+                		if(treeMap.get(key).getClass().equals(Planet.class)) //instanceof here
                 		{
                 			if(!gameMap.getPlanet(treeMap.get(key).getId()).isOwned())
 							{
-								if((ship.canDock(gameMap.getPlanet(treeMap.get(key).getId()))))
+								if((ship.canDock(gameMap.getPlanet(treeMap.get(key).getId())))) //check if its full
 								{
 	                					moveList.add(new DockMove(ship, gameMap.getPlanet(treeMap.get(key).getId())));
 	                                    break;
 								}
 								newThrustMove = new Navigation(ship,treeMap.get(key)).navigateToDock(gameMap,Constants.MAX_SPEED);
-								moveList.add(newThrustMove);
-								break;
+								if (newThrustMove != null)
+            					{
+            						moveList.add(newThrustMove);
+                					break;
+            					}
 							}
                 			if(gameMap.getPlanet(treeMap.get(key).getId()).getOwner() != gameMap.getMyPlayerId())
                 			{
-                				if(gameMap.getPlanet(treeMap.get(key).getId()).getDockedShips() != null)
+                				if(gameMap.getPlanet(treeMap.get(key).getId()).getDockedShips().size() > 0)
                     			{
-                					newThrustMove = new Navigation(ship,ship).navigateTowards(gameMap,(gameMap.getShip(gameMap.getPlanet(treeMap.get(key).getId()).getOwner(), (gameMap.getPlanet(treeMap.get(key).getId()).getDockedShips().get(0)))), Constants.MAX_SPEED, true, 90, Math.PI/180);
-                    				moveList.add(newThrustMove);
-                            		break;
+                					newThrustMove = new Navigation(ship,treeMap.get(key)).navigateTowards(gameMap,(gameMap.getShip(gameMap.getPlanet(treeMap.get(key).getId()).getOwner(), (gameMap.getPlanet(treeMap.get(key).getId()).getDockedShips().get(0)))), Constants.MAX_SPEED, true, 90, Math.PI/180);
+                					if (newThrustMove != null)
+                					{
+                						moveList.add(newThrustMove);
+                    					break;
+                					}
                     			}
                 				else
                 				{
