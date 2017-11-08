@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Collection;
 
 public class GameMap {
@@ -53,7 +54,6 @@ public class GameMap {
     public Ship getShip(final int playerId, final int entityId) throws IndexOutOfBoundsException {
         return players.get(playerId).getShip(entityId);
     }
-
     public Planet getPlanet(final int entityId) {
         return planets.get(entityId);
     }
