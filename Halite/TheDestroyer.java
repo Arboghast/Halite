@@ -2,6 +2,7 @@ import hlt.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -10,7 +11,7 @@ public class TheDestroyer {
 
     public static void main(final String[] args) {
         final Networking networking = new Networking();
-        final GameMap gameMap = networking.initialize("VaginaMan");
+        final GameMap gameMap = networking.initialize("Rajul Alzayt");
         final ArrayList<Move> moveList = new ArrayList<>();
         ArrayList<Entity> targetedEntities = new ArrayList<>();
         Writer writer = new Writer("log.txt");
@@ -75,7 +76,7 @@ public class TheDestroyer {
 	                					moveList.add(new DockMove(ship, planet));
 	                                    break;
 								}
-								else 
+								else
 								{
 									newThrustMove = new Navigation(ship,planet).navigateToDock(gameMap,Constants.MAX_SPEED);
 									if (newThrustMove != null)
@@ -94,11 +95,15 @@ public class TheDestroyer {
     	                					moveList.add(new DockMove(ship, planet));
     	                                    break;
     								}
-    								newThrustMove = new Navigation(ship,planet).navigateToDock(gameMap,Constants.MAX_SPEED);
-    								if (newThrustMove != null)
+                					else if (Collections.frequency(targetedEntities, planet) < planet.getDockingSpots())
                 					{
-                						moveList.add(newThrustMove);
-                    					break;
+                						newThrustMove = new Navigation(ship,planet).navigateToDock(gameMap,Constants.MAX_SPEED);
+                						if (newThrustMove != null)
+                						{
+                							targetedEntities.add(planet);
+                							moveList.add(newThrustMove);
+                							break;
+                						}
                 					}
                 				}
 								continue;
