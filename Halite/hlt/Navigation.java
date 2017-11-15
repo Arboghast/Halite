@@ -49,4 +49,8 @@ public class Navigation {
 
         return new ThrustMove(ship, angleDeg, thrust);
     }
+    public ThrustMove navigateAtMaxSpeed(final GameMap gameMap, final Position targetPos)
+    {
+    	return navigateTowards(gameMap, targetPos, Constants.MAX_SPEED, true, 90 , Math.PI/180);
+    }
 }

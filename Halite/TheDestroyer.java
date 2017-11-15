@@ -6,11 +6,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class MyBot {
+public class TheDestroyer {
 
     public static void main(final String[] args) {
         final Networking networking = new Networking();
-        final GameMap gameMap = networking.initialize("The Destroyer");
+        final GameMap gameMap = networking.initialize("VaginaMan");
         final ArrayList<Move> moveList = new ArrayList<>();
         ArrayList<Entity> targetedEntities = new ArrayList<>();
         Writer writer = new Writer("log.txt");
@@ -70,7 +70,7 @@ public class MyBot {
                 			Planet planet = (Planet) entity;
                 			if(!planet.isOwned()) // If planet is not owned 
 							{
-								if(ship.canDock(planet)) //check if its full and dockable
+								if(ship.canDock(planet)) //check if its full and dock-able
 								{
 	                					moveList.add(new DockMove(ship, planet));
 	                                    break;
