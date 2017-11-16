@@ -1,6 +1,7 @@
 package hlt;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.io.IOException;
 
 public class Writer {
@@ -17,10 +18,10 @@ public class Writer {
 		append_to_file = append;
 	}
 	
-	public void writeToFile(String textLine) throws IOException{
+	public void writeToFile(String string) throws IOException{
 		FileWriter write = new FileWriter(path, append_to_file);
 		PrintWriter print_line = new PrintWriter(write);
-		print_line.printf("%s" + "%n", textLine);
+		print_line.printf("%s" + "%n", string);
 		print_line.close();
 	}
 }

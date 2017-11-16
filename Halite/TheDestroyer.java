@@ -1,4 +1,5 @@
 import hlt.*;
+import hlt.Ship.DockingStatus;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,17 +42,30 @@ public class TheDestroyer {
                 	Entity entity = treeMap.get(key);
                 		if(entity instanceof Ship)
                 		{
+                			Ship target = (Ship) entity;
                 			if(entity.getOwner() != gameMap.getMyPlayerId() && !targetedEntities.contains(entity)) //If ship is not mine and is not targeted
                 			{
-                				if((ship.getDistanceTo(entity) <= 10.0))//ship will slow down when in range of an enemy ship to attack it, instead of ram into it
+                				if((ship.getDistanceTo(entity) <= 9.0))//ship will slow down when in range of an enemy ship to attack it, instead of ram into it
                 				{
-                					
-                					newThrustMove = new Navigation(ship,entity).navigateTowards(gameMap, entity, 1, true, 90 , Math.PI/180);//!!!!
-                					if (newThrustMove != null)
+                					DockingStatus status = target.getDockingStatus();
+                					if(status == Ship.DockingStatus.Docked || status == Ship.DockingStatus.Docking || status == Ship.DockingStatus.Undocking)
                 					{
-                						targetedEntities.add(entity);
-                						moveList.add(newThrustMove);
-                    					break;
+                						newThrustMove = new Navigation(ship,entity).navigateTowards(gameMap, entity, 1, true, 90 , Math.PI/180);//!!!!
+                    					if (newThrustMove != null)
+                    					{
+                    						targetedEntities.add(entity);
+                    						moveList.add(newThrustMove);
+                        					break;
+                    					}
+                					}
+                					else {
+                						newThrustMove = new Navigation(ship,entity).navigateTowards(gameMap, entity, 7, false, 90 , Math.PI/180);//!!!!
+                						if (newThrustMove != null)
+                						{
+                							targetedEntities.add(entity);
+                							moveList.add(newThrustMove);
+                							break;
+                						}
                 					}
                 				}
                 				else {
@@ -64,6 +78,15 @@ public class TheDestroyer {
                 					}
                 				}
                 			}	
+                		/*	if(entity.getOwner() == gameMap.getMyPlayerId()) //If ship is mine
+                			{
+                				Position start = new Position(ship.getXPos(),ship.getYPos());
+                				Position end = new Position(ship.getXPos(),ship.getYPos());
+                				if(Collision.segmentCircleIntersect(ship.orientTowardsInDeg(target), end, circle, fudge))
+                				{
+                					
+                				}	
+                			}	*/
                 			continue;
                 		}
                 		if(entity instanceof Planet)
@@ -76,11 +99,12 @@ public class TheDestroyer {
 	                					moveList.add(new DockMove(ship, planet));
 	                                    break;
 								}
-								else
+								else if (Collections.frequency(targetedEntities, planet) < planet.getDockingSpots())
 								{
 									newThrustMove = new Navigation(ship,planet).navigateToDock(gameMap,Constants.MAX_SPEED);
 									if (newThrustMove != null)
 									{
+										targetedEntities.add(planet);
 										moveList.add(newThrustMove);
 										break;
 									}
@@ -113,24 +137,34 @@ public class TheDestroyer {
                 				if(planet.getDockedShips().size() > 0) // If ships are docked on the planet
                     			{
                 					Ship dockedShip = (gameMap.getShip(planet.getOwner(), (planet.getDockedShips().get(0)))); //!!!
-                					newThrustMove = new Navigation(ship,dockedShip).navigateAtMaxSpeed(gameMap,dockedShip);
+                					newThrustMove = new Navigation(ship,dockedShip).navigateAtMaxSpeed(gameMap,ship.getClosestPoint(dockedShip));
                 					if (newThrustMove != null)
                 					{
+                						targetedEntities.add(dockedShip);
                 						moveList.add(newThrustMove);
                     					break;
                 					}
                     			}
                 				else //If no ships are docked on the planet for some reason, take it over
                 				{
+                					targetedEntities.add(planet);
                 					moveList.add(new DockMove(ship, planet));
                                     break;
                 				}
                 			}
-                			
+                			continue;
                 		}
                 	}
                 
                 }
+            		for(Move x : moveList)
+            		{
+            			
+            		}
+            
+            
+            
+            
             	Networking.sendMoves(moveList);
             }
             

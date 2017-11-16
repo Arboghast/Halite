@@ -29,11 +29,20 @@ public class Navigation {
         final double angleRad = ship.orientTowardsInRad(targetPos);
 
         if (avoidObstacles && !gameMap.objectsBetween(ship, targetPos).isEmpty()) {
-            final double newTargetDx = Math.cos(angleRad + angularStepRad) * distance;
-            final double newTargetDy = Math.sin(angleRad + angularStepRad) * distance;
-            final Position newTarget = new Position(ship.getXPos() + newTargetDx, ship.getYPos() + newTargetDy);
-
-            return navigateTowards(gameMap, newTarget, maxThrust, true, (maxCorrections-1), angularStepRad);
+        	Position newTarget;
+        	 /* 	if(Util.isLeftOfLine(ship,targetPos,gameMap.planetsBetween(ship, targetPos)))
+        	{
+        		final double newTargetDx = Math.cos(angleRad - angularStepRad) * distance; //!!!!
+        		final double newTargetDy = Math.sin(angleRad - angularStepRad) * distance; //!!!!
+        		newTarget = new Position(ship.getXPos() + newTargetDx, ship.getYPos() + newTargetDy);
+        	}
+        	else*/
+        	{
+        		final double newTargetDx = Math.cos(angleRad + angularStepRad) * distance;
+        		final double newTargetDy = Math.sin(angleRad + angularStepRad) * distance;
+        		newTarget = new Position(ship.getXPos() + newTargetDx, ship.getYPos() + newTargetDy);
+        	}
+			return navigateTowards(gameMap, newTarget, maxThrust, true, (maxCorrections-1), angularStepRad);
         }
 
         final int thrust;

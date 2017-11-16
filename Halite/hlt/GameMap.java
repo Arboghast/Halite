@@ -74,7 +74,19 @@ public class GameMap {
 
         return entitiesFound;
     }
+    public ArrayList<Entity> planetsBetween(Position start, Position target) {
+        final ArrayList<Entity> entitiesFound = new ArrayList<>();
 
+        addEntitiesBetween(entitiesFound, start, target, planets.values());
+        return entitiesFound;
+    }
+    public ArrayList<Entity> shipsBetween(Position start, Position target) {
+        final ArrayList<Entity> entitiesFound = new ArrayList<>();
+
+        addEntitiesBetween(entitiesFound, start, target, allShips);
+
+        return entitiesFound;
+    }
     private static void addEntitiesBetween(final List<Entity> entitiesFound,
                                            final Position start, final Position target,
                                            final Collection<? extends Entity> entitiesToCheck) {
