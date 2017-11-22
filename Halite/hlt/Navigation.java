@@ -29,19 +29,9 @@ public class Navigation {
         final double angleRad = ship.orientTowardsInRad(targetPos);
 
         if (avoidObstacles && !gameMap.objectsBetween(ship, targetPos).isEmpty()) {
-        	Position newTarget;
-        	 /* 	if(Util.isLeftOfLine(ship,targetPos,gameMap.planetsBetween(ship, targetPos)))
-        	{
-        		final double newTargetDx = Math.cos(angleRad - angularStepRad) * distance; //!!!!
-        		final double newTargetDy = Math.sin(angleRad - angularStepRad) * distance; //!!!!
-        		newTarget = new Position(ship.getXPos() + newTargetDx, ship.getYPos() + newTargetDy);
-        	}
-        	else*/
-        	{
         		final double newTargetDx = Math.cos(angleRad + angularStepRad) * distance;
         		final double newTargetDy = Math.sin(angleRad + angularStepRad) * distance;
-        		newTarget = new Position(ship.getXPos() + newTargetDx, ship.getYPos() + newTargetDy);
-        	}
+        		Position newTarget = new Position(ship.getXPos() + newTargetDx, ship.getYPos() + newTargetDy);
 			return navigateTowards(gameMap, newTarget, maxThrust, true, (maxCorrections-1), angularStepRad);
         }
 
@@ -62,4 +52,69 @@ public class Navigation {
     {
     	return navigateTowards(gameMap, targetPos, Constants.MAX_SPEED, true, 90 , Math.PI/180);
     }
+    public ThrustMove navigateAwayFrom(final GameMap gameMap, final Position targetPos, final int maxThrust,
+            final boolean avoidObstacles, final int maxCorrections, final double angularStepRad) {
+			if (maxCorrections <= 0) {
+			return null;
+			}
+			
+			final double distance = ship.getDistanceTo(targetPos);
+			final double angleRad = ship.orientTowardsInRad(targetPos);
+			
+			if (avoidObstacles && !gameMap.objectsBetween(ship, targetPos).isEmpty()) {
+			final double newTargetDx = Math.cos(angleRad + angularStepRad) * distance;
+			final double newTargetDy = Math.sin(angleRad + angularStepRad) * distance;
+			Position newTarget = new Position(ship.getXPos() + newTargetDx, ship.getYPos() + newTargetDy);
+			return navigateTowards(gameMap, newTarget, maxThrust, true, (maxCorrections-1), angularStepRad);
+			}
+			
+			final int thrust;
+			if (distance < maxThrust) {
+			// Do not round up, since overshooting might cause collision.
+			thrust = (int) distance;
+			}
+			else {
+			thrust = maxThrust;
+			}
+			
+			int angleDeg = Util.angleRadToDegClipped(angleRad);
+			angleDeg = Math.abs(angleDeg - 180);
+			
+			return new ThrustMove(ship, angleDeg, thrust);
+			}
+
+	public ThrustMove navigateSlightlyAway(final GameMap gameMap, final Position targetPos, final int maxThrust,
+            final boolean avoidObstacles, final int maxCorrections, final double angularStepRad) {
+		if (maxCorrections <= 0) {
+			return null;
+			}
+			
+			final double distance = ship.getDistanceTo(targetPos);
+			final double angleRad = ship.orientTowardsInRad(targetPos);
+			
+			if (avoidObstacles && !gameMap.objectsBetween(ship, targetPos).isEmpty()) {
+			final double newTargetDx = Math.cos(angleRad + angularStepRad) * distance;
+			final double newTargetDy = Math.sin(angleRad + angularStepRad) * distance;
+			Position newTarget = new Position(ship.getXPos() + newTargetDx, ship.getYPos() + newTargetDy);
+			return navigateTowards(gameMap, newTarget, maxThrust, true, (maxCorrections-1), angularStepRad);
+			}
+			
+			final int thrust;
+			if (distance < maxThrust) {
+			// Do not round up, since overshooting might cause collision.
+			thrust = (int) distance;
+			}
+			else {
+			thrust = maxThrust;
+			}
+			
+			int angleDeg = Util.angleRadToDegClipped(angleRad);
+			angleDeg = Math.abs(angleDeg - 90);
+			
+			return new ThrustMove(ship, angleDeg, thrust);
+	}
+
+	public ThrustMove navigateToAttack(final GameMap gameMap, final Position targetPos, final int speed) {
+		return navigateTowards(gameMap, ship.getClosestPoint(target), speed, true, 90 , Math.PI/180);
+	}
 }

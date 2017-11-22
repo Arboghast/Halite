@@ -133,6 +133,7 @@ public class GameMap {
         return shipsByDistance;
     }
     
+    
 
     public GameMap updateMap(final Metadata mapMetadata) {
         DebugLog.addLog("--- NEW TURN ---");

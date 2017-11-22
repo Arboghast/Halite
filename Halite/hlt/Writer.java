@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class Writer {
 	private String path;
-	private boolean append_to_file = false;
+	private boolean append_to_file = true;
 	
 	public Writer(String file_path)
 	{
@@ -18,10 +18,10 @@ public class Writer {
 		append_to_file = append;
 	}
 	
-	public void writeToFile(String string) throws IOException{
+	public void writeToFile(int i) throws IOException{
 		FileWriter write = new FileWriter(path, append_to_file);
 		PrintWriter print_line = new PrintWriter(write);
-		print_line.printf("%s" + "%n", string);
+		print_line.printf("%s" + "%n", i);
 		print_line.close();
 	}
 }
