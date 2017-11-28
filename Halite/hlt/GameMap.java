@@ -121,6 +121,20 @@ public class GameMap {
         return entityByDistance;
     }
     
+    public Map<Double, Planet> nearbyPlanetsByDistance(Entity entity) {
+        final Map<Double, Planet> planetsByDistance = new TreeMap<>();
+
+        for (final Planet planet : planets.values()) {
+            if (planet.equals(entity)) {
+                continue;
+            }
+            planetsByDistance.put(entity.getDistanceTo(planet), planet);
+        }
+
+
+        return planetsByDistance;
+    }
+    
     public Map<Double, Ship> nearbyShipsByDistance(final Entity entity) {
         final Map<Double, Ship> shipsByDistance = new TreeMap<>();
         for (final Ship ship : allShips) {
@@ -132,9 +146,27 @@ public class GameMap {
 
         return shipsByDistance;
     }
-    
-    
-
+    public ArrayList<Planet> returnArrayOfPlanets()
+    {
+    	ArrayList<Planet> yes = new ArrayList<>();
+    	for(final Planet planet : planets.values())
+    	{
+    		yes.add(planet);
+    	}
+    	return yes;
+    }
+    public int returnMyPlanets()
+    {
+    	ArrayList<Planet> yes = new ArrayList<>();
+    	for(Planet planet: planets.values())
+    	{
+    		if(planet.getId() == playerId)
+    		{
+    			yes.add(planet);
+    		}
+    	}
+    	return yes.size();
+    }
     public GameMap updateMap(final Metadata mapMetadata) {
         DebugLog.addLog("--- NEW TURN ---");
         final int numberOfPlayers = MetadataParser.parsePlayerNum(mapMetadata);

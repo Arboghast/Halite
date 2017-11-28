@@ -37,7 +37,6 @@ public class Planet extends Entity {
     public List<Integer> getDockedShips() {
         return dockedShips;
     }
-
     public boolean isFull() {
         return dockedShips.size() == dockingSpots;
     }
