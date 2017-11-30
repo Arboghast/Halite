@@ -1,0 +1,1 @@
+if the closest planet within turn 10, given a circle around it, sum up the docking spots of all planets within that circle and see if other planets near have greater docking spot circles
