@@ -12,11 +12,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class MyBot {
+public class Bull {
 
     public static void main(final String[] args) {
         final Networking networking = new Networking();
-        final GameMap gameMap = networking.initialize("Rajul Alzayt");
+        final GameMap gameMap = networking.initialize("BullRush Test");
         ArrayList<Move> moveList = new ArrayList<>(); // removed final keyword
         ArrayList<Entity> targetedEntities = new ArrayList<>();
         ArrayList<Planet> targetedPlanets = new ArrayList<>();
@@ -26,10 +26,6 @@ public class MyBot {
         ArrayList<Planet> safeToDock = new ArrayList<>();
         int myId = gameMap.getMyPlayerId();
         int planets = gameMap.getAllPlanets().size();
-        int players = gameMap.getAllPlayers().size();
-        boolean bullRushToggle = false;
-        boolean bullRushToggle2 = true;
-        Position center = new Position(gameMap.getWidth()/2,gameMap.getHeight()/2);
         Planet earlyGame = null;
         Writer writer = new Writer("testing.txt");
         int i = 0;
@@ -158,8 +154,8 @@ public class MyBot {
 									break;
 								}
 							}
-							if (ship.getDistanceTo(target) <= 9) {
-								if ((ship.getHealth() < target.getHealth()) ) {
+							if (ship.getDistanceTo(target) <= 10) {
+								if (ship.getDistanceTo(target) <= 8 && (ship.getHealth() < target.getHealth()) ) {
 									newThrustMove = new Navigation(ship, target).navigateTowards(gameMap, target,Constants.MAX_SPEED, false, 90, Math.PI / 180);
 									if (newThrustMove != null) {
 										hasMove.add(ship);
@@ -171,7 +167,7 @@ public class MyBot {
 							}
 							if (!targetedEntities.contains(target)) {
 							newThrustMove = new Navigation(ship, target).navigateToAttack(gameMap, target,Constants.MAX_SPEED);
-							//	newThrustMove = new Navigation(ship,target).navigateToAttackWC(gameMap, target, Constants.MAX_SPEED, true, Constants.MAX_CORRECTIONS, false, Math.PI/180);
+							//	newThrustMove = new Navigation(ship,target).navigateToAttackWithCollisionCheck(gameMap, target, Constants.MAX_SPEED, true, Constants.MAX_CORRECTIONS, false, Math.PI/180);
 								if (newThrustMove != null) {
 									hasMove.add(ship);
 									targetedEntities.add(target);
@@ -207,38 +203,15 @@ public class MyBot {
 											}	*/
 								continue;
 							}
-							if (allShipsTargeted(gameMap.getAllShips(), targetedEntities))
-							{
-								newThrustMove = new Navigation(ship, target).navigateToAttack(gameMap,target, Constants.MAX_SPEED);
-								if (newThrustMove != null) {
-									hasMove.add(ship);
-									moveList.add(newThrustMove);
-									targetedEntities.add(target);
-									break;
-									
-								}
-							}
 						}
 						continue;
 					}
 
 					
 					
-					if (entity instanceof Planet) {
-						if(bullRushToggle)
-						{
-							continue;
-						}
+					if (entity instanceof Planet) { 
 						Planet target = (Planet) entity;
 						if (  ship.canDock(target) && !target.isFull() && ( !target.isOwned() || target.getOwner() == myId) )  {
-							if(players == 2 && safeToDock.contains(target))
-							{
-								moveList.add(new DockMove(ship, target));
-								targetedPlanets.add(target);
-								hasMove.add(ship);
-								bullRushToggle2 = false;
-								break;
-							}
 							if(safeToDock.contains(target))
 							{
 								moveList.add(new DockMove(ship, target));
@@ -249,41 +222,9 @@ public class MyBot {
 							continue;
 						}
 						if (!target.isOwned()) {
-								if(players == 2 )
-								{
-									if (i < 8) {
-										double dis = ship.getDistanceTo(center);
-										if (i < ((int) (dis / 7) - 1) && dis < 80) {
-											int id = target.getId();
-											if (earlyGame != null || (id == 0 || id == 1 || id == 2 || id == 3)) {
-												if (earlyGame == null) {
-													earlyGame = target;
-												}
-												newThrustMove = new Navigation(ship, earlyGame).navigateToDock(gameMap,
-														Constants.MAX_SPEED);
-												if (newThrustMove != null) {
-													moveList.add(newThrustMove);
-													targetedPlanets.add(earlyGame);
-													hasMove.add(ship);
-													break;
-												}
-											} else {
-												continue;
-											}
-										} else if (bullRushToggle2 && enemiesNearby(ship, gameMap, 56)) {
-											bullRushToggle = true;
-											continue;
-										} 
-									}
-								}
 								if(i < 10)
 								{
-									if(enemiesNearby(ship,gameMap,56))
-									{
-										bullRushToggle = true;
-										continue;
-									}
-									if( target.getDockingSpots() <= 3) 
+									if(target.getDockingSpots() <= 3) 
 									{
 										if(Collections.frequency(targetedPlanets, target) < target.getDockingSpots())
 										{
@@ -336,7 +277,7 @@ public class MyBot {
 									} 
 									else
 									{
-										if (enemiesNearby(target, gameMap, 12.0)) {
+										if (enemiesNearby(target, gameMap, 13.0)) {
 											continue;
 										}
 										if (Collections.frequency(targetedPlanets, target) < target
@@ -354,7 +295,7 @@ public class MyBot {
 								}
 								if(i > 75)
 								{
-									if(enemiesNearby(target,gameMap,15.0))
+									if(enemiesNearby(target,gameMap,18.0))
 									{
 										continue;
 									}
@@ -402,24 +343,6 @@ public class MyBot {
             }
             
         }
-
-	private static void valueNearbyPlanets(Ship ship, GameMap gameMap) {
-		Planet planet = null;
-		Map<Double,Planet> everyShipByDistance = gameMap.nearbyPlanetsByDistance(ship);
-		Map<Double,Planet> treeMap = new TreeMap<Double, Planet>(everyShipByDistance);
-    	Set<Double> keys = treeMap.keySet(); 
-    	for(Double key: keys){
-    		
-    	}
-	}
-
-	private static void calculateValues(Map<Planet, Integer> planetValues) {
-		Set<Planet> keys = planetValues.keySet(); 
-    	for(Planet planet: keys){
-    		
-    	}
-		
-	}
 
 	private static void populateList(ArrayList<Planet> safeToDock, GameMap gameMap) {
 		Map<Integer,Planet> everyShipByDistance = gameMap.getAllPlanets();
