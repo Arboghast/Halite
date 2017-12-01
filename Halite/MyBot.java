@@ -231,14 +231,6 @@ public class MyBot {
 						}
 						Planet target = (Planet) entity;
 						if (  ship.canDock(target) && !target.isFull() && ( !target.isOwned() || target.getOwner() == myId) )  {
-							if(players == 2 && safeToDock.contains(target))
-							{
-								moveList.add(new DockMove(ship, target));
-								targetedPlanets.add(target);
-								hasMove.add(ship);
-								bullRushToggle2 = false;
-								break;
-							}
 							if(safeToDock.contains(target))
 							{
 								moveList.add(new DockMove(ship, target));
@@ -249,7 +241,7 @@ public class MyBot {
 							continue;
 						}
 						if (!target.isOwned()) {
-								if(players == 2 )
+							/*	if(players == 2 )
 								{
 									if (i < 8) {
 										double dis = ship.getDistanceTo(center);
@@ -275,13 +267,23 @@ public class MyBot {
 											continue;
 										} 
 									}
-								}
+								}	*/
 								if(i < 10)
 								{
-									if(enemiesNearby(ship,gameMap,56))
+									if(players == 2 && enemiesNearby(ship,gameMap,49))
 									{
 										bullRushToggle = true;
 										continue;
+									}
+									int id = target.getId();
+									if ((id == 0 || id == 1 || id == 2 || id == 3)) {
+										newThrustMove = new Navigation(ship, target).navigateToDock(gameMap,Constants.MAX_SPEED);
+										if (newThrustMove != null) {
+											moveList.add(newThrustMove);
+											targetedPlanets.add(target);
+											hasMove.add(ship);
+											break;
+										}
 									}
 									if( target.getDockingSpots() <= 3) 
 									{
@@ -652,6 +654,33 @@ public class MyBot {
     		}
     	}
     	return mine > theirs; 
+	}
+
+	private static boolean intersect(Position a, Position b, Position c, Position d)
+	{
+		if(CCW(a,c,d) == CCW(b,c,d))
+		{
+			return false;
+		}
+		else if(CCW(a,b,c) == CCW(a,b,d))
+		{
+			return false;
+		}
+		return true;
+	}
+	private static boolean CCW(Position x, Position y, Position z) {
+		double xX = x.getXPos();
+		double xY = x.getYPos();
+		double yX = y.getXPos();
+		double yY = y.getYPos();
+		double zX = z.getXPos();
+		double zY = z.getYPos();
+		double sum = ((yX-xX)*(yY+xY)) + ((zX-yX)*(zY+yY)) + ((xX-zX)*(xY+zY)); //checks for counterclockwise points
+		if(sum > 0)
+		{
+			return true;
+		}
+		return false;
 	}
 
 	private static ArrayList<Move> willShipsCollide(ArrayList<Move> moveList) {
