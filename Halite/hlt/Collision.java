@@ -90,4 +90,12 @@ public class Collision {
     public static double square(final double num) {
         return num * num;
     }
+    public static boolean segmentIntersect(final Position start, final Position end, final Entity enemy) {
+    	double xX = start.getXPos();
+    	double xY = start.getYPos();
+    	double yX = end.getXPos();
+    	double yY = end.getYPos();
+    	double slope = (yY-xY)/(yX-xX);
+    	return Math.abs( (  (slope*(enemy.getXPos()  -  xX) ) + xY)- enemy.getYPos())     <= enemy.getRadius()+.55; // radius of 1
+    }
 }

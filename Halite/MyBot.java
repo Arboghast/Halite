@@ -160,7 +160,7 @@ public class MyBot {
 							}
 							if (ship.getDistanceTo(target) <= 9) {
 								if ((ship.getHealth() < target.getHealth()) ) {
-									newThrustMove = new Navigation(ship, target).navigateTowards(gameMap, target,Constants.MAX_SPEED, false, 90, Math.PI / 180);
+									newThrustMove = new Navigation(ship, target).navigateTowardsC(gameMap, target,Constants.MAX_SPEED, false, 90, Math.PI / 180);//////
 									if (newThrustMove != null) {
 										hasMove.add(ship);
 										targetedEntities.add(target);

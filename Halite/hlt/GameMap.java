@@ -100,7 +100,26 @@ public class GameMap {
             }
         }
     }
+    public ArrayList<Entity> objectsBetweenTest(Position start, Position target) {
+        final ArrayList<Entity> entitiesFound = new ArrayList<>();
+       
+        addEntitiesBetweenTest(entitiesFound, start, target,nearbyPlanetsByDistanceCollision(start));
+        addEntitiesBetweenTest(entitiesFound, start, target,nearbyShipsByDistanceCollision(start));
 
+        return entitiesFound;
+    }
+    private static void addEntitiesBetweenTest(final List<Entity> entitiesFound,final Position start, final Position target,final Collection<? extends Entity> entitiesToCheck) {
+
+    	for (final Entity entity : entitiesToCheck) {
+    		if (entity.equals(start) || entity.equals(target)) {
+    			continue;
+    		}
+    		if (Collision.segmentIntersect(start, target, entity)) {
+    			entitiesFound.add(entity);
+    		}
+    	}
+    }
+    	
     public Map<Double, Entity> nearbyEntitiesByDistance(final Entity entity) {
         final Map<Double, Entity> entityByDistance = new TreeMap<>();
 
@@ -134,7 +153,26 @@ public class GameMap {
 
         return planetsByDistance;
     }
-    
+    public ArrayList<Planet> nearbyPlanetsByDistanceCollision(Position entity) {
+        final ArrayList<Planet> planetsByDistance = new ArrayList<Planet>();
+
+        for (final Planet planet : planets.values()) {
+            if (planet.getDistanceTo(entity)<21) {
+                planetsByDistance.add(planet);
+            }
+        }
+        return planetsByDistance;
+    }
+    public ArrayList<Ship> nearbyShipsByDistanceCollision(Position entity) {
+        final ArrayList<Ship> shipsByDistance = new ArrayList<Ship>();
+
+        for (final Ship ship : allShips) {
+            if (ship.getDistanceTo(entity)<21) {
+                shipsByDistance.add(ship);
+            }
+        }
+        return shipsByDistance;
+    }
     public Map<Double, Ship> nearbyShipsByDistance(final Entity entity) {
         final Map<Double, Ship> shipsByDistance = new TreeMap<>();
         for (final Ship ship : allShips) {

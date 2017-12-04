@@ -54,14 +54,41 @@ public class Navigation {
 			return null;
 			}
 			
-			final double distance = ship.getDistanceTo(targetPos);
-			final double angleRad = ship.orientTowardsInRad(targetPos);
+			 final double distance = ship.getDistanceTo(targetPos);
+			 final double angleRad = ship.orientTowardsInRad(targetPos);
 			
-			if (avoidObstacles && !gameMap.objectsBetween(ship, targetPos).isEmpty()) {
-			final double newTargetDx = Math.cos(angleRad - angularStepRad) * distance;
-			final double newTargetDy = Math.sin(angleRad - angularStepRad) * distance;
-			Position newTarget = new Position(ship.getXPos() + newTargetDx, ship.getYPos() + newTargetDy);
-			return navigateTowards(gameMap, newTarget, maxThrust, true, (maxCorrections-1), angularStepRad);
+			if (avoidObstacles && !gameMap.objectsBetweenTest(ship, targetPos).isEmpty()) {
+				double newTargetDx;
+				double newTargetDy;
+				Position newTarget;
+				boolean toggle = true;
+				int left = 1;
+				int right = 1;
+				while(true)
+				{
+					
+					if(gameMap.objectsBetween(ship,targetPos).isEmpty())
+					{
+						break;
+					}
+					if(left+right > 160)
+					{
+						return null;
+					}
+					if (toggle) {
+						newTargetDx = Math.cos(angleRad - (angularStepRad*left)) * distance;
+						newTargetDy = Math.sin(angleRad - (angularStepRad*left)) * distance;
+						left++;
+					}
+					else
+					{
+						newTargetDx = Math.cos(angleRad + (angularStepRad*right)) * distance;
+						newTargetDy = Math.sin(angleRad + (angularStepRad*right)) * distance;
+						right++;
+					}
+					toggle = !toggle;
+					newTarget = new Position(ship.getXPos() + newTargetDx, ship.getYPos() + newTargetDy);
+				}
 			}
 			
 			final int thrust;
@@ -128,16 +155,11 @@ public class Navigation {
 		boolean toggle = leftOrRight;
 		int left = 1;
 		int right = 1;
-		while(true)
+		while(left+right < 180)
 		{
 			
 			if(gameMap.objectsBetween(ship, newTarget).isEmpty())
 			{
-				break;
-			}
-			if(left >= 80 && right >= 80)
-			{
-				newTarget = null;
 				break;
 			}
 			distance = ship.getDistanceTo(newTarget);
@@ -187,6 +209,6 @@ public class Navigation {
     
 
 	public ThrustMove navigateToAttack(final GameMap gameMap, final Position targetPos, final int speed) {
-		return navigateTowards(gameMap, ship.getClosestPoint(target), speed, true, 90 , Math.PI/180);
+		return navigateTowardsC(gameMap, ship.getClosestPoint(target), speed, true, 90 , Math.PI/180);   //////
 	}
 }
