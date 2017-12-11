@@ -66,10 +66,10 @@ public class Navigation {
 		final double angleRad = ship.orientTowardsInRad(targetPos);
 		
 		if (avoidObstacles && !gameMap.objectsBetweenEG(ship, targetPos).isEmpty()) {
-		final double newTargetDx = Math.cos(angleRad + angularStepRad) * distance;
-		final double newTargetDy = Math.sin(angleRad + angularStepRad) * distance;
-		Position newTarget = new Position(ship.getXPos() + newTargetDx, ship.getYPos() + newTargetDy);
-		return navigateTowards(gameMap, newTarget, maxThrust, true, (maxCorrections-1), angularStepRad);
+			final double newTargetDx = Math.cos(angleRad + angularStepRad) * distance;
+			final double newTargetDy = Math.sin(angleRad + angularStepRad) * distance;
+			Position newTarget = new Position(ship.getXPos() + newTargetDx, ship.getYPos() + newTargetDy);
+			return navigateTowards(gameMap, newTarget, maxThrust, true, (maxCorrections-1), angularStepRad);
 		}
 		
 		final int thrust;
@@ -122,7 +122,7 @@ public class Navigation {
 					}
 					toggle = !toggle;
 					newTarget = new Position(ship.getXPos() + newTargetDx, ship.getYPos() + newTargetDy);
-					distance = ship.getDistanceTo(newTarget);
+					//distance = ship.getDistanceTo(newTarget);
 					angleRad = ship.orientTowardsInRad(newTarget);
 				}
 			}
