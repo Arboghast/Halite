@@ -100,24 +100,23 @@ public class GameMap {
             }
         }
     }
-    public ArrayList<Entity> objectsBetweenTest(Position start, Position target) {
+    public ArrayList<Entity> objectsBetweenEG(Position start, Position target) {
         final ArrayList<Entity> entitiesFound = new ArrayList<>();
        
-        addEntitiesBetweenTest(entitiesFound, start, target,nearbyPlanetsByDistanceCollision(start));
-        addEntitiesBetweenTest(entitiesFound, start, target,nearbyShipsByDistanceCollision(start));
-
+        addEntitiesBetweenEG(entitiesFound, start, target, planets.values());
+        addEntitiesBetweenEG(entitiesFound, start, target, allShips);
         return entitiesFound;
     }
-    private static void addEntitiesBetweenTest(final List<Entity> entitiesFound,final Position start, final Position target,final Collection<? extends Entity> entitiesToCheck) {
+    private static void addEntitiesBetweenEG(final List<Entity> entitiesFound,final Position start, final Position target,final Collection<? extends Entity> entitiesToCheck) {
 
     	for (final Entity entity : entitiesToCheck) {
-    		if (entity.equals(start) || entity.equals(target)) {
-    			continue;
-    		}
-    		if (Collision.segmentIntersect(start, target, entity)) {
-    			entitiesFound.add(entity);
-    		}
-    	}
+            if (entity.equals(start) || entity.equals(target)) {
+                continue;
+            }
+            if (Collision.segmentCircleIntersectEarlyGame(start, target, entity, Constants.FORECAST_FUDGE_FACTOR)) {
+                entitiesFound.add(entity);
+            }
+        }
     }
     	
     public Map<Double, Entity> nearbyEntitiesByDistance(final Entity entity) {

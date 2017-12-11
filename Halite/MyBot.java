@@ -102,7 +102,7 @@ public class MyBot {
 							}
 							if (ship.getDistanceTo(target) <= 9) {
 								if ((ship.getHealth() < target.getHealth()) ) {
-									newThrustMove = new Navigation(ship, target).navigateTowardsC(gameMap, target,Constants.MAX_SPEED, false, 90, Math.PI / 180);//////
+									newThrustMove = new Navigation(ship, target).navigateTowards(gameMap, target,Constants.MAX_SPEED, false, 90, Math.PI / 180);//////
 									if (newThrustMove != null) {
 										hasMove.add(ship);
 										targetedEntities.add(target);
@@ -165,7 +165,7 @@ public class MyBot {
 									}
 									int id = target.getId();
 									if ((id == 0 || id == 1 || id == 2 || id == 3)) {
-										newThrustMove = new Navigation(ship, target).navigateToDock(gameMap,Constants.MAX_SPEED);
+										newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,Constants.MAX_SPEED);
 										if (newThrustMove != null) {
 											moveList.add(newThrustMove);
 											targetedPlanets.add(target);
@@ -177,7 +177,7 @@ public class MyBot {
 									{
 										if(Collections.frequency(targetedPlanets, target) < target.getDockingSpots())
 										{
-											newThrustMove = new Navigation(ship, target).navigateToDock(gameMap,Constants.MAX_SPEED);
+											newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,Constants.MAX_SPEED);
 											if (newThrustMove != null) {
 												moveList.add(newThrustMove);
 												targetedPlanets.add(target);
