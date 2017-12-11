@@ -74,8 +74,4 @@ public class Util {
 		double yPos =  ((( (yC-yP)/(xC-xP) ) * (xB-xP) ) + yP);
 		return yPos  <= yB;
 	}
-/*	public static Position[] futurePosition(double startX,double startY,double speed)
-	{
-		
-	}	*/
 }
