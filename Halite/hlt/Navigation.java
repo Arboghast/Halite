@@ -24,7 +24,7 @@ public class Navigation {
         final double angularStepRad = Math.PI/180;
         final Position targetPos = ship.getClosestPoint(target);
 
-        return navigateTowardsEG(gameMap, targetPos, maxThrust, avoidObstacles, maxCorrections, angularStepRad);
+        return navigateTowardsC(gameMap, targetPos, maxThrust, avoidObstacles, maxCorrections, angularStepRad);
     }
 
     public ThrustMove navigateTowards(final GameMap gameMap, final Position targetPos, final int maxThrust,
