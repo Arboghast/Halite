@@ -12,11 +12,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class MyBot {
+public class TheDestroyer {
 
     public static void main(final String[] args) {
         final Networking networking = new Networking();
-        final GameMap gameMap = networking.initialize("Rajul Alzayt");
+        final GameMap gameMap = networking.initialize("The Destroyer");
         ArrayList<Move> moveList = new ArrayList<>(); // removed final keyword
         ArrayList<Entity> targetedEntities = new ArrayList<>();
         ArrayList<Planet> targetedPlanets = new ArrayList<>();
@@ -26,8 +26,6 @@ public class MyBot {
         ArrayList<Planet> safeToDock = new ArrayList<>();
         int myId = gameMap.getMyPlayerId();
         int planets = gameMap.getAllPlanets().size();
-        int players = gameMap.getAllPlayers().size();
-        boolean bullRushToggle = false;
         Planet earlyGame = null;
         Writer writer = new Writer("testing.txt");
         int i = 0;
@@ -48,27 +46,69 @@ public class MyBot {
 				}
 				if (ship.getDockingStatus() != Ship.DockingStatus.Undocked) {
 					
-					Ship enemy = beingAttacked(ship, gameMap);
-					if (enemy != null) {
-						Ship closestBackup = getClosestAlly(enemy, gameMap, forceMove);
-						if (closestBackup != null) {
-							ThrustMove newThrustMove = new Navigation(closestBackup, enemy).navigateToAttack(gameMap,enemy, Constants.MAX_SPEED);
-							if (newThrustMove != null) {
-								if (hasMove.contains(closestBackup)) {
-									moveList.set(hasMove.indexOf(closestBackup),newThrustMove);
+						Ship enemy = beingAttacked(ship, gameMap);
+						if (enemy != null) {
+							Ship closestBackup = getClosestAlly(enemy, gameMap, forceMove);
+							if (closestBackup != null) {
+								ThrustMove newThrustMove = new Navigation(closestBackup, enemy).navigateToAttack(gameMap,enemy, Constants.MAX_SPEED);
+								if (newThrustMove != null) {
+									if (hasMove.contains(closestBackup)) {
+										moveList.set(hasMove.indexOf(closestBackup),newThrustMove);
+										targetedEntities.add(enemy);
+										continue;
+									}
 									targetedEntities.add(enemy);
+									hasMove.add(closestBackup);
+									moveList.add(newThrustMove);
+									forceMove.add(closestBackup);
 									continue;
 								}
-								targetedEntities.add(enemy);
-								hasMove.add(closestBackup);
-								moveList.add(newThrustMove);
-								forceMove.add(closestBackup);
-								continue;
 							}
-						}
+						
 					}
 					continue;
 				}
+/*		if(i > 150 && gameMap.getMyPlayer().getShips().size() <= 13 || i > 40 && gameMap.getMyPlayer().getShips().size() <= 6  ) Run to corner code
+				{
+					if(ship.getDockingStatus() == DockingStatus.Docked)
+					{
+						moveList.add(new UndockMove(ship));
+						hasMove.add(ship);
+						break;
+					}
+					if (hasMove.size() == 1) {
+						ThrustMove newThrustMove = new Navigation(ship, ship).navigateTowards(gameMap,new Position(0.6, 0.6), Constants.MAX_SPEED, true, 90, Math.PI / 180);
+						if (newThrustMove != null) {
+							hasMove.add(ship);
+							moveList.add(newThrustMove);
+							break;
+						} 
+					}
+					if (hasMove.size() == 2) {
+						ThrustMove newThrustMove = new Navigation(ship, ship).navigateTowards(gameMap,new Position(0.6, (gameMap.getHeight()-.4) ), Constants.MAX_SPEED, true, 90, Math.PI / 180);
+						if (newThrustMove != null) {
+							hasMove.add(ship);
+							moveList.add(newThrustMove);
+							break;
+						} 
+					}
+					if (hasMove.size() == 3) {
+						ThrustMove newThrustMove = new Navigation(ship, ship).navigateTowards(gameMap,new Position((gameMap.getWidth()-.4), 0.6), Constants.MAX_SPEED, true, 90, Math.PI / 180);
+						if (newThrustMove != null) {
+							hasMove.add(ship);
+							moveList.add(newThrustMove);
+							break;
+						} 
+					}
+					if (hasMove.size() == 4) {
+						ThrustMove newThrustMove = new Navigation(ship, ship).navigateTowards(gameMap,new Position( (gameMap.getWidth()-.4), (gameMap.getHeight()-.4 ) ), Constants.MAX_SPEED, true, 90, Math.PI / 180);
+						if (newThrustMove != null) {
+							hasMove.add(ship);
+							moveList.add(newThrustMove);
+							break;
+						} 
+					}
+				}	*/
 				ThrustMove newThrustMove;
 
 				Map<Double, Entity> everyEntityDistance = gameMap.nearbyEntitiesByDistance(ship);
@@ -78,6 +118,19 @@ public class MyBot {
 					Entity entity = treeMap.get(key);
 					if (entity instanceof Ship) {
 						Ship target = (Ship) entity;
+					/*	if (priority.contains(target) && !targetedEntities.contains(target)) {
+							Ship closestBackup = getClosestAlly(target, gameMap, hasMove);
+							if (closestBackup != null) {
+								newThrustMove = new Navigation(closestBackup, target).navigateToAttack(gameMap,target, Constants.MAX_SPEED);
+								if (newThrustMove != null) {
+									hasMove.add(closestBackup);
+									moveList.add(newThrustMove);
+									forceMove.add(closestBackup);
+									targetedEntities.add(target);
+									continue;
+								}
+							}
+						}	*/
 						if (target.getOwner() != myId) {
 							DockingStatus dock = target.getDockingStatus();
 							if (dock == DockingStatus.Docked || dock == DockingStatus.Docking) {
@@ -92,7 +145,8 @@ public class MyBot {
 									}
 
 								}
-								newThrustMove = new Navigation(ship, target).navigateToAttack(gameMap, target,Constants.MAX_SPEED);
+								newThrustMove = new Navigation(ship, target).navigateToAttack(gameMap, target,
+										Constants.MAX_SPEED);
 								if (newThrustMove != null) {
 									hasMove.add(ship);
 									targetedEntities.add(target);
@@ -100,9 +154,9 @@ public class MyBot {
 									break;
 								}
 							}
-							if (ship.getDistanceTo(target) <= 9) {
-								if ((ship.getHealth() < target.getHealth()) ) {
-									newThrustMove = new Navigation(ship, target).navigateTowardsE(gameMap, target,Constants.MAX_SPEED, false, 90, Math.PI / 180);//////
+							if (ship.getDistanceTo(target) <= 10) {
+								if (ship.getDistanceTo(target) <= 8 && (ship.getHealth() < target.getHealth()) ) {
+									newThrustMove = new Navigation(ship, target).navigateTowards(gameMap, target,Constants.MAX_SPEED, false, 90, Math.PI / 180);
 									if (newThrustMove != null) {
 										hasMove.add(ship);
 										targetedEntities.add(target);
@@ -113,24 +167,41 @@ public class MyBot {
 							}
 							if (!targetedEntities.contains(target)) {
 							newThrustMove = new Navigation(ship, target).navigateToAttack(gameMap, target,Constants.MAX_SPEED);
+							//	newThrustMove = new Navigation(ship,target).navigateToAttackWithCollisionCheck(gameMap, target, Constants.MAX_SPEED, true, Constants.MAX_CORRECTIONS, false, Math.PI/180);
 								if (newThrustMove != null) {
 									hasMove.add(ship);
 									targetedEntities.add(target);
 									moveList.add(newThrustMove);
 									break;
 								}
+								/*			if (allShipsTargeted(gameMap.getAllShips(), targetedEntities)) { //This function is confusing
+												newThrustMove = new Navigation(ship, target).navigateToAttack(gameMap, target,Constants.MAX_SPEED);
+												Ship cst = closestToTarget(target, ship, gameMap, hasMove);
+												if (!cst.equals(ship)) {
+													if (!forceMove.contains(cst)) {
+														newThrustMove = new Navigation(cst, target).navigateToAttack(gameMap,target, Constants.MAX_SPEED);
+														if (newThrustMove != null) {
+															hasMove.add(cst);
+															moveList.add(newThrustMove);
+															targetedEntities.add(target);
+															forceMove.add(cst);
+															continue;
+														}
+													}
+												}
+												else
+												{
+													newThrustMove = new Navigation(ship, target).navigateToAttack(gameMap,target, Constants.MAX_SPEED);
+													if (newThrustMove != null) {
+														hasMove.add(ship);
+														moveList.add(newThrustMove);
+														targetedEntities.add(target);
+														break;
+														
+													}
+												}
+											}	*/
 								continue;
-							}
-							if (allShipsTargeted(gameMap.getAllShips(), targetedEntities))
-							{
-								newThrustMove = new Navigation(ship, target).navigateToAttack(gameMap,target, Constants.MAX_SPEED);
-								if (newThrustMove != null) {
-									hasMove.add(ship);
-									moveList.add(newThrustMove);
-									targetedEntities.add(target);
-									break;
-									
-								}
 							}
 						}
 						continue;
@@ -138,11 +209,7 @@ public class MyBot {
 
 					
 					
-					if (entity instanceof Planet) {
-						if(bullRushToggle)
-						{
-							continue;
-						}
+					if (entity instanceof Planet) { 
 						Planet target = (Planet) entity;
 						if (  ship.canDock(target) && !target.isFull() && ( !target.isOwned() || target.getOwner() == myId) )  {
 							if(safeToDock.contains(target))
@@ -157,26 +224,11 @@ public class MyBot {
 						if (!target.isOwned()) {
 								if(i < 10)
 								{
-									if(players == 2 && enemiesNearby(ship,gameMap,49))
-									{
-										bullRushToggle = true;
-										continue;
-									}
-									int id = target.getId();
-									if ((id == 0 || id == 1 || id == 2 || id == 3)) {
-										newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,Constants.MAX_SPEED);
-										if (newThrustMove != null) {
-											moveList.add(newThrustMove);
-											targetedPlanets.add(target);
-											hasMove.add(ship);
-											break;
-										}
-									}
-									if( target.getDockingSpots() <= 3) 
+									if(target.getDockingSpots() <= 3) 
 									{
 										if(Collections.frequency(targetedPlanets, target) < target.getDockingSpots())
 										{
-											newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,Constants.MAX_SPEED);
+											newThrustMove = new Navigation(ship, target).navigateToDock(gameMap,Constants.MAX_SPEED);
 											if (newThrustMove != null) {
 												moveList.add(newThrustMove);
 												targetedPlanets.add(target);
@@ -196,7 +248,7 @@ public class MyBot {
 										{
 											earlyGame = nearbyLargerPlanets(target,gameMap,ship);
 										}
-										newThrustMove = new Navigation(ship, earlyGame).navigateToDockEG(gameMap,Constants.MAX_SPEED);
+										newThrustMove = new Navigation(ship, earlyGame).navigateToDock(gameMap,Constants.MAX_SPEED);
 										if (newThrustMove != null) {
 											moveList.add(newThrustMove);
 											targetedPlanets.add(earlyGame);
@@ -213,7 +265,7 @@ public class MyBot {
 										}
 										if (Collections.frequency(targetedPlanets, target) < target
 												.getDockingSpots()) {
-											newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,
+											newThrustMove = new Navigation(ship, target).navigateToDock(gameMap,
 													Constants.MAX_SPEED);
 											if (newThrustMove != null) {
 												moveList.add(newThrustMove);
@@ -225,11 +277,12 @@ public class MyBot {
 									} 
 									else
 									{
-										if (enemiesNearby(target, gameMap, 12.0)) {
+										if (enemiesNearby(target, gameMap, 13.0)) {
 											continue;
 										}
-										if (Collections.frequency(targetedPlanets, target) < target.getDockingSpots()) {
-											newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,
+										if (Collections.frequency(targetedPlanets, target) < target
+												.getDockingSpots()) {
+											newThrustMove = new Navigation(ship, target).navigateToDock(gameMap,
 													Constants.MAX_SPEED);
 											if (newThrustMove != null) {
 												moveList.add(newThrustMove);
@@ -242,12 +295,12 @@ public class MyBot {
 								}
 								if(i > 75)
 								{
-									if(enemiesNearby(target,gameMap,15.0))
+									if(enemiesNearby(target,gameMap,18.0))
 									{
 										continue;
 									}
 									if (Collections.frequency(targetedPlanets, target) < target.getDockingSpots()) {
-										newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,
+										newThrustMove = new Navigation(ship, target).navigateToDock(gameMap,
 												Constants.MAX_SPEED);
 										if (newThrustMove != null) {
 											moveList.add(newThrustMove);
@@ -264,7 +317,7 @@ public class MyBot {
 								if (!enemiesNearby(target,gameMap,(double) (7+(i/4)) )) {
 									if (Collections.frequency(targetedPlanets, target)+ target.getDockedShips().size() < target.getDockingSpots()) //DOES NOT ACCOUNT FOR DOCKING SHIPS
 									{
-										newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,
+										newThrustMove = new Navigation(ship, target).navigateToDock(gameMap,
 												Constants.MAX_SPEED);
 										if (newThrustMove != null) {
 											moveList.add(newThrustMove);
@@ -290,24 +343,6 @@ public class MyBot {
             }
             
         }
-
-	private static void valueNearbyPlanets(Ship ship, GameMap gameMap) {
-		Planet planet = null;
-		Map<Double,Planet> everyShipByDistance = gameMap.nearbyPlanetsByDistance(ship);
-		Map<Double,Planet> treeMap = new TreeMap<Double, Planet>(everyShipByDistance);
-    	Set<Double> keys = treeMap.keySet(); 
-    	for(Double key: keys){
-    		
-    	}
-	}
-
-	private static void calculateValues(Map<Planet, Integer> planetValues) {
-		Set<Planet> keys = planetValues.keySet(); 
-    	for(Planet planet: keys){
-    		
-    	}
-		
-	}
 
 	private static void populateList(ArrayList<Planet> safeToDock, GameMap gameMap) {
 		Map<Integer,Planet> everyShipByDistance = gameMap.getAllPlanets();
@@ -540,33 +575,6 @@ public class MyBot {
     		}
     	}
     	return mine > theirs; 
-	}
-
-	private static boolean intersect(Position a, Position b, Position c, Position d)
-	{
-		if(CCW(a,c,d) == CCW(b,c,d))
-		{
-			return false;
-		}
-		else if(CCW(a,b,c) == CCW(a,b,d))
-		{
-			return false;
-		}
-		return true;
-	}
-	private static boolean CCW(Position x, Position y, Position z) {
-		double xX = x.getXPos();
-		double xY = x.getYPos();
-		double yX = y.getXPos();
-		double yY = y.getYPos();
-		double zX = z.getXPos();
-		double zY = z.getYPos();
-		double sum = ((yX-xX)*(yY+xY)) + ((zX-yX)*(zY+yY)) + ((xX-zX)*(xY+zY)); //checks for counterclockwise points
-		if(sum > 0)
-		{
-			return true;
-		}
-		return false;
 	}
 
 	private static ArrayList<Move> willShipsCollide(ArrayList<Move> moveList) {
