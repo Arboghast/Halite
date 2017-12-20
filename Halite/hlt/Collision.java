@@ -14,6 +14,8 @@ public class Collision {
         // Parameterize the segment as start + t * (end - start),
         // and substitute into the equation of a circle
         // Solve for t
+    	
+    	//add code so that i
         final double circleRadius = circle.getRadius(); //.7 to get rid of early game ship collision
         final double startX = start.getXPos();
         final double startY = start.getYPos();
