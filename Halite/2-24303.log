@@ -1,0 +1,13 @@
+ --- Init ---
+Rajul Alzayt
+ --- Bot used 93 milliseconds ---
+-----------------------------------------------------------------------------
+ --- Frame #1 ---
+t 6 7 49 t 7 7 243 t 6 7 520 
+ --- Bot used 22 milliseconds ---
+ERRORED!
+ERROR: Bot #2: Tried to queue too many commands for ship 6 (at character 29.)
+Input received from bot:
+t 6 7 49 t 7 7 243 t 6 7 520 
+                            ^
+t 6 7 49 t 7 7 243 t 6 7 520 

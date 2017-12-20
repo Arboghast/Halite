@@ -100,7 +100,7 @@ public class MyBot {
 									break;
 								}
 							}
-							if (ship.getDistanceTo(target) <= 9) {
+							if (ship.getDistanceTo(target) <= 10) {
 								if ((ship.getHealth() < target.getHealth()) ) {
 									newThrustMove = new Navigation(ship, target).navigateTowardsE(gameMap, target,Constants.MAX_SPEED, false, 90, Math.PI / 180);//////
 									if (newThrustMove != null) {
@@ -157,19 +157,25 @@ public class MyBot {
 						if (!target.isOwned()) {
 								if(i < 10)
 								{
-									if(players == 2 && enemiesNearby(ship,gameMap,49))
+									if(players == 2)
 									{
-										bullRushToggle = true;
-										continue;
-									}
-									int id = target.getId();
-									if ((id == 0 || id == 1 || id == 2 || id == 3)) {
-										newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,Constants.MAX_SPEED);
-										if (newThrustMove != null) {
-											moveList.add(newThrustMove);
-											targetedPlanets.add(target);
-											hasMove.add(ship);
-											break;
+										if (enemiesNearby(ship,gameMap,49)) {
+											bullRushToggle = true;
+											continue;
+										}
+										else
+										{
+											int id = target.getId();
+											if ((id == 0 || id == 1 || id == 2 || id == 3)) {
+												newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,Constants.MAX_SPEED);
+												if (newThrustMove != null) {
+													ship.setTargetPosition(ship.getClosestPoint(target));
+													moveList.add(newThrustMove);
+													targetedPlanets.add(target);
+													hasMove.add(ship);
+													break;
+												}
+											}
 										}
 									}
 									if( target.getDockingSpots() <= 3) 
@@ -178,6 +184,7 @@ public class MyBot {
 										{
 											newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,Constants.MAX_SPEED);
 											if (newThrustMove != null) {
+												ship.setTargetPosition(ship.getClosestPoint(target));
 												moveList.add(newThrustMove);
 												targetedPlanets.add(target);
 												hasMove.add(ship);
@@ -198,6 +205,7 @@ public class MyBot {
 										}
 										newThrustMove = new Navigation(ship, earlyGame).navigateToDockEG(gameMap,Constants.MAX_SPEED);
 										if (newThrustMove != null) {
+											ship.setTargetPosition(ship.getClosestPoint(earlyGame));
 											moveList.add(newThrustMove);
 											targetedPlanets.add(earlyGame);
 											hasMove.add(ship);
@@ -216,6 +224,7 @@ public class MyBot {
 											newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,
 													Constants.MAX_SPEED);
 											if (newThrustMove != null) {
+												ship.setTargetPosition(ship.getClosestPoint(target));
 												moveList.add(newThrustMove);
 												targetedPlanets.add(target);
 												hasMove.add(ship);
@@ -232,6 +241,7 @@ public class MyBot {
 											newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,
 													Constants.MAX_SPEED);
 											if (newThrustMove != null) {
+												ship.setTargetPosition(ship.getClosestPoint(target));
 												moveList.add(newThrustMove);
 												targetedPlanets.add(target);
 												hasMove.add(ship);
@@ -250,6 +260,7 @@ public class MyBot {
 										newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,
 												Constants.MAX_SPEED);
 										if (newThrustMove != null) {
+											ship.setTargetPosition(ship.getClosestPoint(target));
 											moveList.add(newThrustMove);
 											targetedPlanets.add(target);
 											hasMove.add(ship);
@@ -267,6 +278,7 @@ public class MyBot {
 										newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,
 												Constants.MAX_SPEED);
 										if (newThrustMove != null) {
+											ship.setTargetPosition(ship.getClosestPoint(target));
 											moveList.add(newThrustMove);
 											targetedPlanets.add(target);
 											hasMove.add(ship);
@@ -282,9 +294,10 @@ public class MyBot {
 					}
 				}
 			}
-				if(i < 2)		
+				if(i < 3)		
 	        	{
-	            	moveList = willShipsCollide(moveList);
+	            	//moveList = willShipsCollide(moveList);
+					moveList = CollisionCheck(moveList);
 	        	}	
             	Networking.sendMoves(moveList);
             }
@@ -310,11 +323,11 @@ public class MyBot {
 	}
 
 	private static void populateList(ArrayList<Planet> safeToDock, GameMap gameMap) {
-		Map<Integer,Planet> everyShipByDistance = gameMap.getAllPlanets();
-    	Set<Integer> keys = everyShipByDistance.keySet();
+		Map<Integer,Planet> everyPlanetByDistance = gameMap.getAllPlanets();
+    	Set<Integer> keys = everyPlanetByDistance.keySet();
     	for(Integer key: keys){
-    		Planet cycle = everyShipByDistance.get(key);
-    		if(!cycle.isOwned() || cycle.getOwner() == gameMap.getMyPlayerId())
+    		Planet cycle = everyPlanetByDistance.get(key);
+    		if( (!cycle.isOwned()) || (cycle.getOwner() == gameMap.getMyPlayerId()) )
     		{
     			if(!enemiesNearby(cycle,gameMap,12.0))
     			{
@@ -541,7 +554,41 @@ public class MyBot {
     	}
     	return mine > theirs; 
 	}
-
+	
+	private static ArrayList<Move> CollisionCheck(ArrayList<Move> moveList)
+	{
+			for (int i = 0; i < 2; i++) {
+				Ship ship = moveList.get(i).getShip();
+				Ship otherShip = moveList.get(i+1).getShip();
+				if (intersect(ship.getCurrentPosition(), ship.getTargetPosition(), otherShip.getCurrentPosition(),
+						otherShip.getTargetPosition())) {
+					int x = ship.orientTowardsInDeg(ship.getTargetPosition());
+					if (x < 180) {
+						moveList.set(i, new ThrustMove(ship, ((ThrustMove) moveList.get(i)).getAngle() + 200,
+								((ThrustMove) moveList.get(i)).getThrust()));
+				//		ship.setTargetPosition(x); reset target position for collision
+					} else {
+						moveList.set(i, new ThrustMove(ship, ((ThrustMove) moveList.get(i)).getAngle() - 200,
+								((ThrustMove) moveList.get(i)).getThrust()));
+					}
+				} 
+			}
+			
+			Ship ship = moveList.get(0).getShip();
+			Ship otherShip = moveList.get(2).getShip();
+			if (intersect(ship.getCurrentPosition(), ship.getTargetPosition(), otherShip.getCurrentPosition(),
+					otherShip.getTargetPosition())) {
+				int x = ship.orientTowardsInDeg(ship.getTargetPosition());
+				if (x < 180) {
+					moveList.set(2, new ThrustMove(ship, ((ThrustMove) moveList.get(2)).getAngle() + 200,
+							((ThrustMove) moveList.get(2)).getThrust()));
+				} else {
+					moveList.set(2, new ThrustMove(ship, ((ThrustMove) moveList.get(2)).getAngle() - 200,
+							((ThrustMove) moveList.get(2)).getThrust()));
+				}
+			} 
+		return moveList;
+	}
 	private static boolean intersect(Position a, Position b, Position c, Position d)
 	{
 		if(CCW(a,c,d) == CCW(b,c,d))

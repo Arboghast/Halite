@@ -218,25 +218,25 @@ public class Navigation {
 					newTargetDxl = Math.cos(angleRadl - angularStepRad) * distancel;
 					newTargetDyl = Math.sin(angleRadl - angularStepRad) * distancel;
 					newTarget = new Position(ship.getXPos() + newTargetDxl, ship.getYPos() + newTargetDyl);
+					distancel = ship.getDistanceTo(newTarget);
+					angleRadl = ship.orientTowardsInRad(newTarget);
 					if(gameMap.objectsBetween(ship,newTarget).isEmpty())
 					{
 						togg = true;
 						break;
 					}
-					distancel = ship.getDistanceTo(newTarget);
-					angleRadl = ship.orientTowardsInRad(newTarget);
 					
 					
 					newTargetDxr = Math.cos(angleRadr + angularStepRad) * distancer;
 					newTargetDyr = Math.sin(angleRadr + angularStepRad) * distancer;
 					newTarget = new Position(ship.getXPos() + newTargetDxr, ship.getYPos() + newTargetDyr);
+					distancer = ship.getDistanceTo(newTarget);
+					angleRadr = ship.orientTowardsInRad(newTarget);
 					if(gameMap.objectsBetween(ship,newTarget).isEmpty())
 					{
 						togg = false;
 						break;
 					}
-					distancer = ship.getDistanceTo(newTarget);
-					angleRadr = ship.orientTowardsInRad(newTarget);
 					incr++;
 				
 				//distance = ship.getDistanceTo(newTarget);

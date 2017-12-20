@@ -8,6 +8,7 @@ public class Ship extends Entity {
     private final int dockedPlanet;
     private final int dockingProgress;
     private final int weaponCooldown;
+    private Position targetPos;
 
     public Ship(final int owner, final int id, final double xPos, final double yPos,
                 final int health, final DockingStatus dockingStatus, final int dockedPlanet,
@@ -19,8 +20,22 @@ public class Ship extends Entity {
         this.dockedPlanet = dockedPlanet;
         this.dockingProgress = dockingProgress;
         this.weaponCooldown = weaponCooldown;
+        Position position = new Position(xPos,yPos);
+        this.targetPos = position;
     }
-
+    public Position getTargetPosition()
+    {
+    	return targetPos;
+    }
+    public Position getCurrentPosition()
+    {
+    	Position position = new Position(this.getXPos(),this.getYPos());
+    	return position;
+    }
+    public void setTargetPosition(Position x)
+    {
+    	this.targetPos = x;
+    }
     public int getWeaponCooldown() {
         return weaponCooldown;
     }
