@@ -1,7 +1,6 @@
 package hlt;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.io.IOException;
 
 public class Writer {

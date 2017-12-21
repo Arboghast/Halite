@@ -1,9 +1,5 @@
 package hlt;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 public class graveyard {
 	/* public ThrustMove navigateTowardsEG(final GameMap gameMap, final Position targetPos, final int maxThrust,
 	            final boolean avoidObstacles, final int maxCorrections, final double angularStepRad) {

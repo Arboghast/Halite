@@ -24,7 +24,7 @@ public class MyBot {
         int players = gameMap.getAllPlayers().size();
         boolean bullRushToggle = false;
         Planet earlyGame = null;
-        Writer writer = new Writer("testing.txt");
+       // Writer writer = new Writer("testing.txt");
         int i = 0;
         for (;;) {
             moveList.clear();
