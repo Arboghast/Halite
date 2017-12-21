@@ -9,7 +9,6 @@ public class Planet extends Entity {
     private final int currentProduction;
     private final int dockingSpots;
     private final List<Integer> dockedShips;
-    private final int shipsGoingTo;
 
     public Planet(final int owner, final int id, final double xPos, final double yPos, final int health,
                   final double radius, final int dockingSpots, final int currentProduction,

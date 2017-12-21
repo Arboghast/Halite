@@ -2,92 +2,12 @@ package hlt;
 
 public class Collision {
     /**
-     * Test whether a given line segment intersects a circular area.
-     *
      * @param start  The start of the segment.
      * @param end    The end of the segment.
-     * @param circle: The circle to test against.
      * @param fudge  An additional safety zone to leave when looking for collisions. (Probably set it to ship radius 0.5)
      * @return true if the segment intersects, false otherwise
      */
-    public static boolean segmentCircleIntersect(final Position start, final Position end, final Entity circle, final double fudge) {
-        // Parameterize the segment as start + t * (end - start),
-        // and substitute into the equation of a circle
-        // Solve for t
-    	
-    	//add code so that i
-        final double circleRadius = circle.getRadius(); //.7 to get rid of early game ship collision
-        final double startX = start.getXPos();
-        final double startY = start.getYPos();
-        final double endX = end.getXPos();
-        final double endY = end.getYPos();
-        final double centerX = circle.getXPos();
-        final double centerY = circle.getYPos();
-        final double dx = endX - startX;
-        final double dy = endY - startY;
-
-        final double a = square(dx) + square(dy);
-
-        final double b = -2 * (square(startX) - (startX * endX)
-                            - (startX * centerX) + (endX * centerX)
-                            + square(startY) - (startY * endY)
-                            - (startY * centerY) + (endY * centerY));
-
-        if (a == 0.0) {
-            // Start and end are the same point
-            return start.getDistanceTo(circle) <= circleRadius + fudge;
-        }
-
-        // Time along segment when closest to the circle (vertex of the quadratic)
-        final double t = Math.min(-b / (2 * a), 1.0);
-        if (t < 0) {
-            return false;
-        }
-
-        final double closestX = startX + dx * t;
-        final double closestY = startY + dy * t;
-        final double closestDistance = new Position(closestX, closestY).getDistanceTo(circle);
-
-        return closestDistance <= circleRadius + fudge;
-    }
-    public static boolean segmentCircleIntersectEarlyGame(final Position start, final Position end, final Entity circle, final double fudge) {
-        // Parameterize the segment as start + t * (end - start),
-        // and substitute into the equation of a circle
-        // Solve for t
-        final double circleRadius = circle.getRadius()+.7; //.7 to get rid of early game ship collision
-        final double startX = start.getXPos();
-        final double startY = start.getYPos();
-        final double endX = end.getXPos();
-        final double endY = end.getYPos();
-        final double centerX = circle.getXPos();
-        final double centerY = circle.getYPos();
-        final double dx = endX - startX;
-        final double dy = endY - startY;
-
-        final double a = square(dx) + square(dy);
-
-        final double b = -2 * (square(startX) - (startX * endX)
-                            - (startX * centerX) + (endX * centerX)
-                            + square(startY) - (startY * endY)
-                            - (startY * centerY) + (endY * centerY));
-
-        if (a == 0.0) {
-            // Start and end are the same point
-            return start.getDistanceTo(circle) <= circleRadius + fudge;
-        }
-
-        // Time along segment when closest to the circle (vertex of the quadratic)
-        final double t = Math.min(-b / (2 * a), 1.0);
-        if (t < 0) {
-            return false;
-        }
-
-        final double closestX = startX + dx * t;
-        final double closestY = startY + dy * t;
-        final double closestDistance = new Position(closestX, closestY).getDistanceTo(circle);
-
-        return closestDistance <= circleRadius + fudge;
-    }
+   
     public static boolean vectorIntersect(final Position start, final Position end, final Entity circle, final double fudge) {
         // Parameterize the segment as start + t * (end - start),
         // and substitute into the equation of a circle
@@ -130,12 +50,26 @@ public class Collision {
     public static double square(final double num) {
         return num * num;
     }
-    public static boolean segmentIntersect(final Position start, final Position end, final Entity enemy) {
-    	double xX = start.getXPos();
-    	double xY = start.getYPos();
-    	double yX = end.getXPos();
-    	double yY = end.getYPos();
-    	double slope = (yY-xY)/(yX-xX);
-    	return Math.abs( (  (slope*(enemy.getXPos()  -  xX) ) + xY)- enemy.getYPos())     <= enemy.getRadius()+.55; // radius of 1
+   
+    public static boolean vectorCollision(final Position start, final Position target,final Entity ship, final double fudge)
+    {
+    	if (ship instanceof Ship ) {
+    		Ship ship2 = (Ship) ship;
+			Position startS = start;
+			Position endS = target;
+			Position startE = ship2.getCurrentPosition();
+			Position endE = ship2.getTargetPosition();
+			double xPos = (endS.getXPos() - startS.getXPos()) - (endE.getXPos() - startE.getXPos());
+			double yPos = (endS.getYPos() - startS.getYPos()) - (endE.getYPos() - startE.getYPos());
+			Position newTarget = new Position(start.getXPos()+xPos, start.getYPos()+yPos);
+			return vectorIntersect(start, newTarget, ship, fudge);
+			//double slope = (startS.getYPos() - newTarget.getYPos()) / (startS.getXPos() - newTarget.getXPos());
+			//return Math.abs(slope * (startE.getXPos() - startS.getXPos()) + startS.getYPos() - newTarget.getYPos()) < fudge;
+		}
+    	else
+    	{
+    		return vectorIntersect(start, target, ship, fudge);
+    	}
+ 
     }
 }

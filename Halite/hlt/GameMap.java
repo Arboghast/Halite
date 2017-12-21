@@ -95,30 +95,12 @@ public class GameMap {
             if (entity.equals(start) || entity.equals(target)) {
                 continue;
             }
-            if (Collision.segmentCircleIntersect(start, target, entity, Constants.FORECAST_FUDGE_FACTOR)) {
+            if (Collision.vectorCollision(start, target, entity, Constants.FORECAST_FUDGE_FACTOR)) { 
                 entitiesFound.add(entity);
             }
         }
     }
-    public ArrayList<Entity> objectsBetweenEG(Position start, Position target) {
-        final ArrayList<Entity> entitiesFound = new ArrayList<>();
-       
-        addEntitiesBetweenEG(entitiesFound, start, target, planets.values());
-        addEntitiesBetweenEG(entitiesFound, start, target, allShips);
-        return entitiesFound;
-    }
-    private static void addEntitiesBetweenEG(final List<Entity> entitiesFound,final Position start, final Position target,final Collection<? extends Entity> entitiesToCheck) {
-
-    	for (final Entity entity : entitiesToCheck) {
-            if (entity.equals(start) || entity.equals(target)) {
-                continue;
-            }
-            if (Collision.segmentCircleIntersectEarlyGame(start, target, entity, Constants.FORECAST_FUDGE_FACTOR)) {
-                entitiesFound.add(entity);
-            }
-        }
-    }
-    	
+   
     public Map<Double, Entity> nearbyEntitiesByDistance(final Entity entity) {
         final Map<Double, Entity> entityByDistance = new TreeMap<>();
 
