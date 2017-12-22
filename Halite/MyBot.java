@@ -144,6 +144,7 @@ public class MyBot {
 						if (  ship.canDock(target) && !target.isFull() && ( !target.isOwned() || target.getOwner() == myId) )  {
 							if(safeToDock.contains(target))
 							{
+								ship.setTargetPosition(ship.getClosestPoint(target));
 								moveList.add(new DockMove(ship, target));
 								targetedPlanets.add(target);
 								hasMove.add(ship);

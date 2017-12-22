@@ -94,7 +94,7 @@ public class GameMap {
             if (entity.equals(start) || entity.equals(target)) {
                 continue;
             }
-            if (Collision.vectorCollision(start, target, entity, Constants.FORECAST_FUDGE_FACTOR)) { 
+            if (Collision.vectorIntersect(start, target, entity, Constants.FORECAST_FUDGE_FACTOR)) { 
                 entitiesFound.add(entity);
             }
         }

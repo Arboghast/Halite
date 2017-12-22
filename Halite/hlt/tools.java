@@ -9,14 +9,15 @@ import java.util.TreeMap;
 import hlt.Ship.DockingStatus;
 
 public class tools {
-	public static Position newTarget(ThrustMove ntm)
+		public static Position newTarget(ThrustMove ntm)
 	    {
 	    	double newTargetDx = Math.cos(ntm.getAngle()) *ntm.getThrust();
 			double newTargetDy = Math.sin(ntm.getAngle()) * ntm.getThrust();
 			Position newTarget = new Position(ntm.getShip().getXPos() + newTargetDx, ntm.getShip().getYPos() + newTargetDy);
 			return newTarget;
 	    }
-
+		
+	
 		public static void populateList(ArrayList<Planet> safeToDock, GameMap gameMap) {
 			Map<Integer,Planet> everyPlanetByDistance = gameMap.getAllPlanets();
 	    	Set<Integer> keys = everyPlanetByDistance.keySet();

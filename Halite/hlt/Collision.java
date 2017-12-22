@@ -12,11 +12,29 @@ public class Collision {
         // Parameterize the segment as start + t * (end - start),
         // and substitute into the equation of a circle
         // Solve for t
+    	final double endX;
+        final double endY;
         final double circleRadius = circle.getRadius();
         final double startX = start.getXPos();
         final double startY = start.getYPos();
-        final double endX = end.getXPos();
-        final double endY = end.getYPos();
+        
+        if (circle instanceof Ship && (((Ship) circle).getTargetPosition() != null) ) { //IF INSTANCEOFSHIP AND HAS TARGETPOS
+    		//IF CIRCLE INSTANCE OF SHIP TAKE THE TARGETPOS AND INVERT IT AND ADD IT TO END
+    		Ship ship2 = (Ship) circle;
+			Position startS = start;
+			Position endS = end;
+			Position startE = ship2.getCurrentPosition();
+			Position endE = ship2.getTargetPosition();
+			double X = (endS.getXPos() - startS.getXPos()) - (endE.getXPos() - startE.getXPos());
+			double Y = (endS.getYPos() - startS.getYPos()) - (endE.getYPos() - startE.getYPos());
+			endX = start.getXPos()+X;
+			endY = start.getYPos()+Y;
+		}
+        else
+        {
+        	endX = end.getXPos();
+            endY = end.getYPos();
+        }
         final double centerX = circle.getXPos();
         final double centerY = circle.getYPos();
         final double dx = endX - startX;

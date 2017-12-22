@@ -20,8 +20,7 @@ public class Ship extends Entity {
         this.dockedPlanet = dockedPlanet;
         this.dockingProgress = dockingProgress;
         this.weaponCooldown = weaponCooldown;
-        Position position = new Position(xPos,yPos);
-        this.targetPos = position;
+        this.targetPos = null;
     }
     public Position getTargetPosition()
     {
@@ -32,9 +31,9 @@ public class Ship extends Entity {
     	Position position = new Position(this.getXPos(),this.getYPos());
     	return position;
     }
-    public void setTargetPosition(Position x)
+    public void setTargetPosition(Position targetPos)
     {
-    	this.targetPos = x;
+    	this.targetPos = targetPos;
     }
     public int getWeaponCooldown() {
         return weaponCooldown;
