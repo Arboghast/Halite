@@ -51,11 +51,9 @@ public class MyBot {
 							if (newThrustMove != null) {
 								if (hasMove.contains(closestBackup)) {
 									moveList.set(hasMove.indexOf(closestBackup),newThrustMove);
-									closestBackup.setTargetPosition(tools.newTarget(newThrustMove));
 									targetedEntities.add(enemy);
 									continue;
 								}
-								closestBackup.setTargetPosition(tools.newTarget(newThrustMove));
 								targetedEntities.add(enemy);
 								hasMove.add(closestBackup);
 								moveList.add(newThrustMove);
@@ -82,7 +80,6 @@ public class MyBot {
 									if (tools.nearbyShipsApproaching(gameMap, ship)) {
 										newThrustMove = new Navigation(ship, target).navigateAwayFrom(gameMap,target, Constants.MAX_SPEED, false, 90, Math.PI / 180);
 										if (newThrustMove != null) {
-											ship.setTargetPosition(tools.newTarget(newThrustMove));
 											hasMove.add(ship);
 											moveList.add(newThrustMove);
 											break;
@@ -91,7 +88,6 @@ public class MyBot {
 								}
 								newThrustMove = new Navigation(ship, target).navigateToAttack(gameMap, target,Constants.MAX_SPEED);
 								if (newThrustMove != null) {
-									ship.setTargetPosition(tools.newTarget(newThrustMove));
 									hasMove.add(ship);
 									targetedEntities.add(target);
 									moveList.add(newThrustMove);
@@ -102,7 +98,6 @@ public class MyBot {
 								if ((ship.getHealth() < target.getHealth()) ) {
 									newThrustMove = new Navigation(ship, target).navigateTowardsE(gameMap, target,Constants.MAX_SPEED, false, 90, Math.PI / 180);//////
 									if (newThrustMove != null) {
-										ship.setTargetPosition(tools.newTarget(newThrustMove));
 										hasMove.add(ship);
 										targetedEntities.add(target);
 										moveList.add(newThrustMove);
@@ -113,7 +108,6 @@ public class MyBot {
 							if (!targetedEntities.contains(target)) {
 							newThrustMove = new Navigation(ship, target).navigateToAttack(gameMap, target,Constants.MAX_SPEED);
 								if (newThrustMove != null) {
-									ship.setTargetPosition(tools.newTarget(newThrustMove));
 									hasMove.add(ship);
 									targetedEntities.add(target);
 									moveList.add(newThrustMove);
@@ -125,7 +119,6 @@ public class MyBot {
 							{
 								newThrustMove = new Navigation(ship, target).navigateToAttack(gameMap,target, Constants.MAX_SPEED);
 								if (newThrustMove != null) {
-									ship.setTargetPosition(tools.newTarget(newThrustMove));
 									hasMove.add(ship);
 									moveList.add(newThrustMove);
 									targetedEntities.add(target);
@@ -167,7 +160,6 @@ public class MyBot {
 											if ((id == 0 || id == 1 || id == 2 || id == 3)) {
 												newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,Constants.MAX_SPEED);
 												if (newThrustMove != null) {
-													ship.setTargetPosition(ship.getClosestPoint(target));
 													moveList.add(newThrustMove);
 													targetedPlanets.add(target);
 													hasMove.add(ship);
@@ -182,7 +174,6 @@ public class MyBot {
 										{
 											newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,Constants.MAX_SPEED);
 											if (newThrustMove != null) {
-												ship.setTargetPosition(ship.getClosestPoint(target));
 												moveList.add(newThrustMove);
 												targetedPlanets.add(target);
 												hasMove.add(ship);
@@ -203,7 +194,6 @@ public class MyBot {
 										}
 										newThrustMove = new Navigation(ship, earlyGame).navigateToDockEG(gameMap,Constants.MAX_SPEED);
 										if (newThrustMove != null) {
-											ship.setTargetPosition(ship.getClosestPoint(earlyGame));
 											moveList.add(newThrustMove);
 											targetedPlanets.add(earlyGame);
 											hasMove.add(ship);
@@ -222,7 +212,6 @@ public class MyBot {
 											newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,
 													Constants.MAX_SPEED);
 											if (newThrustMove != null) {
-												ship.setTargetPosition(ship.getClosestPoint(target));
 												moveList.add(newThrustMove);
 												targetedPlanets.add(target);
 												hasMove.add(ship);
@@ -239,7 +228,6 @@ public class MyBot {
 											newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,
 													Constants.MAX_SPEED);
 											if (newThrustMove != null) {
-												ship.setTargetPosition(ship.getClosestPoint(target));
 												moveList.add(newThrustMove);
 												targetedPlanets.add(target);
 												hasMove.add(ship);
@@ -258,7 +246,6 @@ public class MyBot {
 										newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,
 												Constants.MAX_SPEED);
 										if (newThrustMove != null) {
-											ship.setTargetPosition(ship.getClosestPoint(target));
 											moveList.add(newThrustMove);
 											targetedPlanets.add(target);
 											hasMove.add(ship);
@@ -276,7 +263,6 @@ public class MyBot {
 										newThrustMove = new Navigation(ship, target).navigateToDockEG(gameMap,
 												Constants.MAX_SPEED);
 										if (newThrustMove != null) {
-											ship.setTargetPosition(ship.getClosestPoint(target));
 											moveList.add(newThrustMove);
 											targetedPlanets.add(target);
 											hasMove.add(ship);

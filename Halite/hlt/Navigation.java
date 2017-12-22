@@ -104,6 +104,7 @@ public class Navigation {
 		}
 		
 		final int thrust;
+		ship.setTargetPosition(newTarget);
 		if (togg) {
 			if (distancel < maxThrust) {
 				// Do not round up, since overshooting might cause collision.
