@@ -9,7 +9,8 @@ public class Ship extends Entity {
     private final int dockingProgress;
     private final int weaponCooldown;
     private Position targetPos;
-
+    private double degree;
+   
     public Ship(final int owner, final int id, final double xPos, final double yPos,
                 final int health, final DockingStatus dockingStatus, final int dockedPlanet,
                 final int dockingProgress, final int weaponCooldown) {
@@ -21,6 +22,16 @@ public class Ship extends Entity {
         this.dockingProgress = dockingProgress;
         this.weaponCooldown = weaponCooldown;
         this.targetPos = null;
+        this.degree = 0;
+       
+    }
+    public double getDegree()
+    {
+    	return degree;
+    }
+    public void setDegree(double x)
+    {
+    	this.degree = x;
     }
     public Position getTargetPosition()
     {

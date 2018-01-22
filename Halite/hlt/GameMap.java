@@ -29,7 +29,14 @@ public class GameMap {
         allShips = new ArrayList<>();
         allShipsUnmodifiable = Collections.unmodifiableList(allShips);
     }
-
+    public void addShip(GhostShip ship)
+    {
+    	allShips.add(ship);
+    }
+    public void remove(GhostShip ship)
+    {
+    	allShips.remove(ship);
+    }
     public int getHeight() {
         return height;
     }
@@ -119,7 +126,7 @@ public class GameMap {
 
         return entityByDistance;
     }
-    
+   
     public Map<Double, Planet> nearbyPlanetsByDistance(Entity entity) {
         final Map<Double, Planet> planetsByDistance = new TreeMap<>();
 

@@ -65,10 +65,10 @@ public class Navigation {
 		 double angleRadl = ship.orientTowardsInRad(targetPos);
 		 double distancer = ship.getDistanceTo(targetPos);
 		 double angleRadr = ship.orientTowardsInRad(targetPos);
-		 double newTargetDxl;
-		 double newTargetDyl;
-		 double newTargetDxr;
-		 double newTargetDyr;
+		 double newTargetDxl = 0;
+		 double newTargetDyl = 0;
+		 double newTargetDxr = 0;
+		 double newTargetDyr = 0;
 		 Position newTarget = targetPos;
 		 int incr = 0;
 		 boolean togg = false;
@@ -112,7 +112,9 @@ public class Navigation {
 			} else {
 				thrust = maxThrust;
 			}
+			
 			final int angleDeg = Util.angleRadToDegClipped(angleRadl);
+			ship.setDegree(angleDeg);
 			return new ThrustMove(ship, angleDeg, thrust);
 		}
 		else
@@ -123,7 +125,9 @@ public class Navigation {
 			} else {
 				thrust = maxThrust;
 			}
+			
 			final int angleDeg = Util.angleRadToDegClipped(angleRadr);
+			ship.setDegree(angleDeg);
 			return new ThrustMove(ship, angleDeg, thrust);
 		}
 	}
@@ -200,6 +204,6 @@ public class Navigation {
 		}
     }
 	public ThrustMove navigateToAttack(final GameMap gameMap, final Position targetPos, final int speed) {
-		return navigateTowardsE(gameMap, ship.getClosestPoint(target), speed, true, 90 , Math.PI/180);   //////
+		return navigateTowardsE(gameMap, ship.getClosestPoint(target), speed, true, Constants.MAX_CORRECTIONS , Math.PI/180);   //////
 	}
 }

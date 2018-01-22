@@ -1,6 +1,7 @@
 package hlt;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,66 +19,100 @@ public class tools {
 	    }
 		
 	
-		public static void populateList(ArrayList<Planet> safeToDock, GameMap gameMap) {
+		public static void populateList(ArrayList<Planet> safeToDock, GameMap gameMap,int buffer) {
 			Map<Integer,Planet> everyPlanetByDistance = gameMap.getAllPlanets();
 	    	Set<Integer> keys = everyPlanetByDistance.keySet();
 	    	for(Integer key: keys){
 	    		Planet cycle = everyPlanetByDistance.get(key);
-	    		if( (!cycle.isOwned()) || (cycle.getOwner() == gameMap.getMyPlayerId()) )
+	    		if( ( !cycle.isOwned() || cycle.getOwner() == gameMap.getMyPlayerId() ) && !enemiesNearby(cycle,gameMap,buffer))
 	    		{
-	    			if(!enemiesNearby(cycle,gameMap,12.0))
-	    			{
 	    				safeToDock.add(cycle);
-	    			}
 	    		}
 	    	}
 			
 		}
-
-		public static boolean enemiesNearby(Planet ally, GameMap gameMap,Double key2) {
+		
+		public static void updateGameState(Map<Planet,Value> planetValues, GameMap gameMap) {
+			Map<Integer,Planet> everyPlanetByDistance = gameMap.getAllPlanets();
+	    	Set<Integer> keys = everyPlanetByDistance.keySet();
+	    	for(Integer key: keys){
+	    		Planet planet = everyPlanetByDistance.get(key);
+	    		Value planetValue = createValue(planet,gameMap,Constants.MAX_SPEED*8);
+	    		planetValues.put(planet,planetValue);
+	    	}
+			
+		}
+		
+		public static boolean enemiesNearby(Planet ally, GameMap gameMap,int key2) {
 			Map<Double,Ship> everyShipByDistance = gameMap.nearbyShipsByDistance(ally);
 			Map<Double,Ship> treeMap = new TreeMap<Double, Ship>(everyShipByDistance);
 	    	Set<Double> keys = treeMap.keySet(); 
 	    	for(Double key: keys){
-	    		if(treeMap.get(key).getOwner() != gameMap.getMyPlayerId())
+	    		Ship target = treeMap.get(key);
+	    		if(target.getOwner() != gameMap.getMyPlayerId() && key < ally.getRadius()+key2)
 	    		{
-	    			if(key < ally.getRadius()+key2)
-	    			{
 	    				return true;
-	    			}
 	    		}
 	    	}
 			return false;
 		}
-		public static boolean enemiesNearby(Ship ship, GameMap gameMap) {
+		public static boolean enemiesNearby(Ship ship, GameMap gameMap,int key2) {
 			Map<Double,Ship> everyShipByDistance = gameMap.nearbyShipsByDistance(ship);
 			Map<Double,Ship> treeMap = new TreeMap<Double, Ship>(everyShipByDistance);
 	    	Set<Double> keys = treeMap.keySet(); 
 	    	for(Double key: keys){
-	    		if(treeMap.get(key).getOwner() != gameMap.getMyPlayerId())
+	    		if(treeMap.get(key).getOwner() != gameMap.getMyPlayerId() && key < key2)
 	    		{
-	    			if(key < 15)
-	    			{
 	    				return true;
-	    			}
 	    		}
 	    	}
 			return false;
 		}
-		public static boolean enemiesNearby(Ship ship, GameMap gameMap, double x) {
+		public static void deploy(ArrayList<Ship> deployables, GameMap gameMap) {
+			List<Ship> yes = gameMap.getAllShips();
+	    	for(Ship ship : yes){
+	    		if(ship.getOwner() == gameMap.getMyPlayerId() && ship.getDockingStatus() == Ship.DockingStatus.Undocked )
+	    		{
+	    				deployables.add(ship);
+	    		}
+	    	}
+		}
+		public static int enemies(Ship ship, GameMap gameMap, int i) {
 			Map<Double,Ship> everyShipByDistance = gameMap.nearbyShipsByDistance(ship);
 			Map<Double,Ship> treeMap = new TreeMap<Double, Ship>(everyShipByDistance);
 	    	Set<Double> keys = treeMap.keySet(); 
+	    	int j = 0;
 	    	for(Double key: keys){
-	    		if(treeMap.get(key).getOwner() != gameMap.getMyPlayerId())
+	    		if(treeMap.get(key).getOwner() != gameMap.getMyPlayerId() && key < i)
 	    		{
-	    			if(key < x)
+	    				j++;
+	    		}
+	    	}
+			return j;
+		}
+		public static Value createValue(Planet planet, GameMap gameMap, int x) {
+			Map<Double,Planet> everyPlanetByDistance = gameMap.nearbyPlanetsByDistance(planet);
+			Map<Double,Planet> treeMap = new TreeMap<Double, Planet>(everyPlanetByDistance);
+	    	Set<Double> keys = treeMap.keySet();
+	    	boolean tog = true;
+	    	int pl = 0;
+	    	int dk = 0;
+	    	Planet enemy = null;
+	    	for(Double key: keys){
+	    		Planet cycle = treeMap.get(key);
+	    		if(planet.getDistanceTo(cycle) < x)
+	    		{
+	    			pl++;
+	    			dk = dk + cycle.getDockingSpots();
+	    			if(tog && planet.getDistanceTo(cycle) < x-17 &&cycle.isOwned() && cycle.getOwner() != gameMap.getMyPlayerId())
 	    			{
-	    				return true;
+	    				enemy = cycle;
+	    				tog = false;
 	    			}
 	    		}
 	    	}
-			return false;
+	    	Value value = new Value(pl,dk,enemy);
+	    	return value;
 		}
 		public static Ship closestDockedShip(Planet target, GameMap gameMap, Ship ship) {
 			List<Integer> docked = target.getDockedShips();
@@ -93,7 +128,59 @@ public class tools {
 	    	}
 	    	return gameMap.getShip(target.getId(), docked.get(0));
 		}
-
+		public static Ship enemyWithin(GameMap gameMap,Ship ship, double key2)
+		{
+			Map<Double,Ship> everyShipByDistance = gameMap.nearbyShipsByDistance(ship);
+			Map<Double,Ship> treeMap = new TreeMap<Double, Ship>(everyShipByDistance);
+	    	Set<Double> keys = treeMap.keySet(); 
+	    	for(Double key: keys){
+	    		Ship cycle = treeMap.get(key);
+	    		
+	    		if (cycle.getOwner() != gameMap.getMyPlayerId() && cycle.getDockingStatus() == Ship.DockingStatus.Undocked) {
+					if (key < key2) {
+						return cycle;
+					} 
+					break;
+				}
+	    	}
+	    	return null;
+		}
+		public static boolean moreAlliesNearby(Planet target, GameMap gameMap) {
+			int ally = 0;
+			int pats = 0;
+			Map<Double,Ship> everyShipByDistance = gameMap.nearbyShipsByDistance(target);
+			Map<Double,Ship> treeMap = new TreeMap<Double, Ship>(everyShipByDistance);
+	    	Set<Double> keys = treeMap.keySet(); 
+	    	for(Double key: keys){
+	    		Ship cycle = treeMap.get(key);
+	    		if(key < 17)
+	    		{
+	    			if(cycle.getOwner() == gameMap.getMyPlayerId())
+	    			{
+	    				ally++;
+	    			}
+	    			else
+	    			{
+	    				pats++;
+	    			}
+	    		}
+	    	}
+	    	return ally > pats+2;
+		}
+		public static ArrayList<Ship> alliesNearby(Ship ship, GameMap gameMap) {
+			ArrayList<Ship> yes = new ArrayList<Ship>();
+			Map<Double,Ship> everyShipByDistance = gameMap.nearbyShipsByDistance(ship);
+			Map<Double,Ship> treeMap = new TreeMap<Double, Ship>(everyShipByDistance);
+	    	Set<Double> keys = treeMap.keySet(); 
+	    	for(Double key: keys){
+	    		Ship cycle = treeMap.get(key);
+	    		if(key < 10 && cycle.getOwner() == gameMap.getMyPlayerId())
+	    		{
+	    				yes.add(cycle);
+	    		}
+	    	}
+	    	return yes;
+		}
 		public static Ship dockingShipsNearby(Planet target, GameMap gameMap) {
 			double dis = target.getRadius() + 5;
 			Map<Double,Ship> everyShipByDistance = gameMap.nearbyShipsByDistance(target);
@@ -115,6 +202,42 @@ public class tools {
 			return null;
 		}
 
+		public static Planet nearbyLargerPlanets(Planet target, GameMap gameMap, Ship ship, final Map<Planet,Value> planetValues, Position middle) {
+			Planet avg1 = target;
+			double avg = 0;
+			double dis = ship.getDistanceTo(target);
+			Value pv = null;
+			int doc = 0;
+			int num = 0;
+			int plannum = 1;
+			double dis1 = 0;
+			Map<Double,Planet> everyEntityDistance = gameMap.nearbyPlanetsByDistance(ship);
+	    	Map<Double,Planet> treeMap = new TreeMap<Double, Planet>(everyEntityDistance);
+	    	Set<Double> keys = treeMap.keySet(); 
+	    	for(Double key: keys){
+	    		Planet cycle = treeMap.get(key);
+	    		if(key-dis <= 6)
+	    		{
+	    				pv = planetValues.get(cycle);
+	    				doc =  pv.getDockingSpotsNearby();
+	    				num = pv.getPlanetsNearby();
+	    				if( num != 0 && ( doc/num  )> avg || num > (plannum*1.5) && target.getDistanceTo(middle) > dis1*1.25 )
+	    				{
+	    					avg1 = cycle;
+	    					plannum = num;
+	    					avg = (  doc/num  );
+	    					dis1 = target.getDistanceTo(middle);
+	    				}
+	    				
+	    		}
+	    	}
+			return avg1;
+		}
+		public static boolean approaching(Ship ship, GameMap gameMap,Ship target)
+		{
+			double angle = Math.atan2(ship.getYPos()-target.getYPos(), ship.getXPos()-target.getXPos());
+			return target.getDegree()+250<angle && angle < target.getDegree()+290;
+		}
 		public static Planet nearbyLargerPlanets(Planet target, GameMap gameMap, Ship ship) {
 			Planet newTarget = target;
 			double dis = ship.getDistanceTo(target);
@@ -140,8 +263,23 @@ public class tools {
 	    	}
 			return newTarget;
 		}
+		public static double distance(Position endpoint, Position targetCenter)
+	    {
+	    	return Math.sqrt(Math.pow((endpoint.getXPos()-targetCenter.getXPos()), 2) + Math.pow((endpoint.getYPos()-targetCenter.getYPos()), 2));
+	    }
+		public static boolean allShipsDocked(GameMap gameMap) {
+			int i = 0;
+			for(Ship ship : gameMap.getAllShips())
+			{
+				if(ship.getOwner() == gameMap.getMyPlayerId() && ship.getDockingStatus() != Ship.DockingStatus.Undocked)
+				{
+					i++;
+				}
+			}
+			return i == 3;
+		}
 
-		public static Ship getClosestAlly(Ship target, GameMap gameMap, ArrayList<Ship> forceMove) {
+		public static Ship getClosestAlly1(Ship target, GameMap gameMap) {
 			Map<Double,Ship> everyEntityDistance = gameMap.nearbyShipsByDistance(target);
 	    	Map<Double, Ship> treeMap = new TreeMap<Double, Ship>(everyEntityDistance);
 	    	Set<Double> keys = treeMap.keySet(); 
@@ -151,9 +289,24 @@ public class tools {
 	    		{
 	    			return ally;
 	    		}
-	    		if( key > 48.0) {
+	    		if( key > 33) {
 	    			break;
 	    		}
+	    	}
+	    	return null;
+		}
+		public static Planet closestCenterPlanet(GameMap gameMap, Ship ship) {
+			Map<Double,Planet> everyEntityDistance = gameMap.nearbyPlanetsByDistance(ship);
+	    	Map<Double,Planet> treeMap = new TreeMap<Double, Planet>(everyEntityDistance);
+	    	Set<Double> keys = treeMap.keySet(); 
+	    	int i = 0;
+	    	for(Double key: keys){
+	    		i++;
+	    		Planet cycle = treeMap.get(key);
+	    		int id = cycle.getId();
+				if ((id == 0 || id == 1 || id == 2 || id == 3)  && i <= 3 ) {
+					return cycle;
+				}
 	    	}
 	    	return null;
 		}
@@ -176,14 +329,10 @@ public class tools {
 	    	Map<Double, Ship> treeMap = new TreeMap<Double, Ship>(everyEntityDistance);
 	    	Set<Double> keys = treeMap.keySet(); 
 	    	for(Double key: keys){
-	    		Ship enemy =treeMap.get(key);
-	    		if(enemy.getId() != gameMap.getMyPlayerId() && key < 7)
+	    		Ship enemy = treeMap.get(key);
+	    		if(enemy.getId() != gameMap.getMyPlayerId() && key < 25)
 	    		{
-	    			return treeMap.get(key);
-	    		}
-	    		else
-	    		{
-	    			break;
+	    			return enemy;
 	    		}
 	    	}
 	    	return null;
@@ -389,17 +538,15 @@ public class tools {
 
 		public static boolean nearbyShipsApproaching(GameMap gameMap,Entity ship) {
 			Map<Double,Ship> closeShips = gameMap.nearbyShipsByDistance(ship);
+			int counter = 0;
 			for(Ship ships : closeShips.values())
 			{
-				double deg = ships.orientTowardsInDeg(ship);
-				double dis = ships.getDistanceTo(ship);
-				if (dis < 8) {
-					if (deg < 5 && deg > 355) { //95 and 85
-						return true;
-					} 
+				if(ships.getOwner() == ship.getOwner() && ships.getDockingStatus() == Ship.DockingStatus.Undocked && ship.getDistanceTo(ships) < 16) //if ships near target is on the same team as the target and is mobile and is within 15 units of the target
+				{
+					counter++;
 				}
 			}
-			return false;
+			return !(counter <=1);
 		}
 		
 		public static boolean biggerPlanetsNearby(Planet planet, Map<Double, Planet> nearbyPlanetsByDistance, Ship ship) {
@@ -463,4 +610,111 @@ public class tools {
 			double yPos =  ((( (yC-yP)/(xC-xP) ) * (xB-xP) ) + yP);
 			return yPos  <= yB;
 		}
+
+
+		public static int playersLeft(GameMap gameMap) {
+			List<Player> players = gameMap.getAllPlayers();
+			int i = 0;
+			for(Player player : players)
+			{
+				if(player.getShips().size() >2)
+				{
+					i++;
+				}
+					
+			}
+			return i;
+		}
+
+		public static double production(GameMap gameMap,int player1,int player2)
+		{
+			int p1 = gameMap.getAllPlayers().get(player1).getShips().size();
+			int p2 = gameMap.getAllPlayers().get(player2).getShips().size();
+			double pr1 = 0;
+			double pr2 = 0;
+			ArrayList<Planet> planets = gameMap.returnArrayOfPlanets();//0 is player 0, 1 is player 1, 2 is player 2, 3 is player 3
+			for(Planet planet : planets)
+			{
+				if (planet.isOwned()) {
+					if(planet.getOwner() == player1)
+					{
+						pr1 = pr1 + planet.getDockedShips().size();
+					}
+					if(planet.getOwner() == player2)
+					{
+						pr2 = pr2 + planet.getDockedShips().size();
+					}
+				}
+			}
+			pr1 = pr1/12;
+			pr2 = pr2/12;
+			return player1;
+			
+		}
+		public static int greaterProduction(GameMap gameMap,int turn) {
+			List<Player> players = gameMap.getAllPlayers();
+			for(Player player : players)
+			{
+				if(player.getShips().size() >2)
+				{
+					
+				}
+					
+			}
+			return turn;
+		}
+
+
+		public static void createGhosts(GameMap gameMap) {
+			int i = 500;
+			List<Ship> ships = gameMap.getAllShips();
+			for(Iterator<Ship> iterator = ships.iterator(); iterator.hasNext();)
+			{
+				Ship ship = iterator.next();
+				if(ship.getOwner() == gameMap.getMyPlayerId() )
+				{
+					ArrayList<Ship> allies = alliesNearby(ship,gameMap);
+					if(allies.size() >=3)
+					{
+						double x = 0;
+						double y = 0;
+						for(Ship shi : allies)
+						{
+							x = x +shi.getXPos();
+							y = y + shi.getYPos();
+						}
+						x = x/allies.size();
+						y = y/allies.size();
+						GhostShip ghost = new GhostShip(4,i,x,y,Constants.MAX_SHIP_HEALTH,Constants.SHIP_RADIUS);
+						gameMap.addShip(ghost);
+						i++;
+					}
+				}
+			}
+			
+		}
+		public static void wipeGhosts(GameMap gameMap)
+		{
+			List<Ship> ships = gameMap.getAllShips();
+			for(Ship ship : ships)
+			{
+				if(ship instanceof GhostShip)
+				{
+					GhostShip ss = (GhostShip) ship;
+					gameMap.remove(ss);
+				}
+			}
+		}
+
+
+		
+
+
+		
+
+
+		
+
+
+		
 }

@@ -68,26 +68,5 @@ public class Collision {
     public static double square(final double num) {
         return num * num;
     }
-   
-    public static boolean vectorCollision(final Position start, final Position target,final Entity ship, final double fudge)
-    {
-    	if (ship instanceof Ship ) {
-    		Ship ship2 = (Ship) ship;
-			Position startS = start;
-			Position endS = target;
-			Position startE = ship2.getCurrentPosition();
-			Position endE = ship2.getTargetPosition();
-			double xPos = (endS.getXPos() - startS.getXPos()) - (endE.getXPos() - startE.getXPos());
-			double yPos = (endS.getYPos() - startS.getYPos()) - (endE.getYPos() - startE.getYPos());
-			Position newTarget = new Position(start.getXPos()+xPos, start.getYPos()+yPos);
-			return vectorIntersect(start, newTarget, ship, fudge);
-			//double slope = (startS.getYPos() - newTarget.getYPos()) / (startS.getXPos() - newTarget.getXPos());
-			//return Math.abs(slope * (startE.getXPos() - startS.getXPos()) + startS.getYPos() - newTarget.getYPos()) < fudge;
-		}
-    	else
-    	{
-    		return vectorIntersect(start, target, ship, fudge);
-    	}
- 
-    }
+    
 }
