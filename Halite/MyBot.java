@@ -19,8 +19,7 @@ public class MyBot {
         ArrayList<Planet> targetedPlanets = new ArrayList<>();
         ArrayList<Ship> hasMove = new ArrayList<>();
         ArrayList<Planet> safeToDock = new ArrayList<>();
-       // ArrayList<Ship> deployables = new ArrayList<>();
-      //  ArrayList<Group> groups = new ArrayList<>();
+        ArrayList<Ship> rogue = new ArrayList<>();
         Map<Planet,Value> planetValues = new HashMap<>();//number of planets nearby, number of docking spots for the nearby planets total, if there is an enemy planet directly/closeby
         int myId = gameMap.getMyPlayerId();  //if enemyplanet nearby, check enemies production level, if ours is grater, go to cap it ,else focus on another planet
         int players = gameMap.getAllPlayers().size();
@@ -29,11 +28,14 @@ public class MyBot {
         boolean allShipsDocked = true;
         int safetyZone;
         Position middle = new Position(gameMap.getWidth()/2,gameMap.getHeight()/2);
+        Position one = new Position(gameMap.getWidth(),gameMap.getHeight());
+        Position two = new Position(gameMap.getWidth(),0);
+        Position three = new Position(0,0);
+        Position four = new Position(0,gameMap.getHeight());
         
         Writer writer = new Writer("testing.txt");
         int i = 0;
         for (;;) {
-        	//deployables.clear();
             moveList.clear();
             targetedEntities.clear();
             hasMove.clear();
@@ -51,38 +53,63 @@ public class MyBot {
             {
             	safetyZone = 5+  (7*  (  ((int)(i/60)) + 1)   );
             }
-           // tools.deploy(deployables,gameMap);
             tools.populateList(safeToDock,gameMap, safetyZone ); //45 is a test number, can change
             tools.updateGameState(planetValues,gameMap);
-            if (i > 80) {
-				tools.wipeGhosts(gameMap);
-				tools.createGhosts(gameMap);
-				/*       if(!groups.isEmpty() && groups.size() != 0)
-				       {
-				       	for(Group group : groups)
-				{
-					Ship pats = tools.enemyWithin(gameMap, Group.getships().get(0), 100);
-					for(Ship ship : Group.getships())
-					{
-						ThrustMove newThrustMove = new Navigation(ship,pats).navigateToAttack(gameMap,pats, Constants.MAX_SPEED);
-								if (newThrustMove != null) {
-									targetedEntities.add(pats);
-									hasMove.add(ship);
-									moveList.add(newThrustMove);
-					}
-				}
-				       }*/
-			}
 			for (final Ship ship : gameMap.getMyPlayer().getShips().values()) {
 				if (hasMove.contains(ship)) {
 					continue;
 				}
 				
-				if(i>60 && gameMap.getMyPlayer().getShips().size() < 6)
+				if(i>45 && gameMap.getMyPlayer().getShips().size() < 10 && gameMap.returnMyPlanets() <=2)
 				{
 					if(ship.getDockingStatus() != Ship.DockingStatus.Undocked)
 					{
 						moveList.add(new UndockMove(ship));
+					}
+					else
+					{
+						int sw= tools.nearWall(gameMap,ship); //1 = x 0 , 2 == x max, 3 = y 0, 4 = y max
+						if(sw != 0)
+						{
+							double y = ship.getYPos();
+							double x = ship.getXPos();
+							int a = gameMap.getHeight()/2;
+							int b = gameMap.getWidth()/2;
+							ThrustMove newThrustMove = null;
+							if(sw == 1 && y >a || sw == 4 && x <= b)
+							{
+								newThrustMove = new Navigation(ship,ship).navigateToAttack(gameMap,four, Constants.MAX_SPEED);
+							}
+							if(sw == 2 && y > a || sw == 4 && x > b)
+							{
+								newThrustMove = new Navigation(ship,ship).navigateToAttack(gameMap,one, Constants.MAX_SPEED);
+							}
+							if(sw == 3 && x >b|| sw == 2 && y <= a)
+							{
+								newThrustMove = new Navigation(ship,ship).navigateToAttack(gameMap,two, Constants.MAX_SPEED);
+							}
+							if(sw == 1 && y <= a || sw == 3 && x <= b)
+							{
+								newThrustMove = new Navigation(ship,ship).navigateToAttack(gameMap,three, Constants.MAX_SPEED);
+							}
+							
+							
+							if (newThrustMove != null) {
+								hasMove.add(ship);
+								moveList.add(newThrustMove);
+								break;
+							}
+						}
+						else
+						{
+							Position position = tools.closestWall(gameMap,ship);
+							ThrustMove newThrustMove = new Navigation(ship,ship).navigateToAttack(gameMap,position, Constants.MAX_SPEED);
+							if (newThrustMove != null) {
+								hasMove.add(ship);
+								moveList.add(newThrustMove);
+								break;
+							}
+						}
 					}
 				}
 				if (ship.getDockingStatus() != Ship.DockingStatus.Undocked) {
@@ -139,9 +166,9 @@ public class MyBot {
 							
 							
 							//health of ship and target aka all this code below should be used when making an attack command.
-							if (ship.getDistanceTo(target)<=5) { //within range to collide in 1 turn assuming
+							if (ship.getDistanceTo(target)<=11) { //within range to collide in 1 turn assuming
 								double health = ship.getHealth()/target.getHealth();
-								if(health < .27)// or .76 for 3/4 health left, .52 is 2/4 health remaining
+								if(health < .52)// or .76 for 3/4 health left, .52 is 2/4 health remaining
 								{
 									newThrustMove = new Navigation(ship, target).navigateTowardsE(gameMap, target,Constants.MAX_SPEED, true, Constants.MAX_CORRECTIONS, Math.PI / 180);//////
 									if (newThrustMove != null) {
@@ -153,15 +180,16 @@ public class MyBot {
 								}
 								else
 								{
-									Ship alli  = tools.getClosestAlly(ship, gameMap);
-									if (alli != null) {
-										newThrustMove = new Navigation(ship, alli).navigateTowardsE(gameMap, alli,
-												Constants.MAX_SPEED, true, Constants.MAX_CORRECTIONS, Math.PI / 180);
-										if (newThrustMove != null) {
-											hasMove.add(ship);
-											targetedEntities.add(target);
-											moveList.add(newThrustMove);
-											break;
+									if (!tools.isAttackingDockedAlly(gameMap, target)) {
+										Ship alli = tools.getClosestAlly(ship, gameMap);
+										if (alli != null) {
+											newThrustMove = new Navigation(ship, alli).navigateAwayFrom(gameMap, alli,Constants.MAX_SPEED, true, Constants.MAX_CORRECTIONS,Math.PI / 180);
+											if (newThrustMove != null) {
+												hasMove.add(ship);
+												targetedEntities.add(target);
+												moveList.add(newThrustMove);
+												break;
+											}
 										} 
 									}
 								}
@@ -199,76 +227,7 @@ public class MyBot {
 						}
 						
 						
-					/*	if (key < 14) {
-							Ship pats = tools.enemyWithin(gameMap,ship,14);
-							if(pats != null)
-							{
-								int x= (int) (key/2);
-								newThrustMove = new Navigation(ship, target).navigateTowardsE(gameMap,target,x, true, Constants.MAX_CORRECTIONS, Math.PI/180);
-								if (newThrustMove != null) {
-									if (hasMove.contains(ship)) {
-										moveList.set(hasMove.indexOf(ship),newThrustMove);
-										continue;
-									}
-									hasMove.add(ship);
-									moveList.add(newThrustMove);
-									forceMove.add(ship);
-								}
-							}
-						}*/
-			/*			int pats = tools.enemies(ship, gameMap, 20);
-						
-						ArrayList<Ship> ally = tools.alliesNearby(target,gameMap);
-						if(ally.size()>=5 && pats >=3)
-						{
-							Team team = new Team(ally);
-							newThrustMove = new Navigation(ship, (Entity) team.avg()).navigateTowardsE(gameMap,team.avg(), Constants.MAX_SPEED, true, Constants.MAX_CORRECTIONS, Math.PI/180);
-							if (newThrustMove != null) {
-								if (hasMove.contains(closestBackup)) {
-									moveList.set(hasMove.indexOf(closestBackup),newThrustMove);
-									targetedEntities.add(enemy);
-									continue;
-								}
-								targetedEntities.add(enemy);
-								hasMove.add(closestBackup);
-								moveList.add(newThrustMove);
-								forceMove.add(closestBackup);
-							}
-						}*/
-		/*				int pats = tools.enemies(ship, gameMap, 13);
-						if(i > 140 && key < 6 && pats == 1)
-						{
-							Team team = new Team();
-							team.addShip(ship);
-							ship.setInTeam(true);
-							team.addShip(target);
-							target.setInTeam(true);
-							
-							
-							newThrustMove = new Navigation(target, ship).navigateTowardsE(gameMap,team.avg(), Constants.MAX_SPEED, true, Constants.MAX_CORRECTIONS, Math.PI/180);
-							if (newThrustMove != null) {
-								if (hasMove.contains(target)) {
-									moveList.set(hasMove.indexOf(target),newThrustMove);
-									continue;
-								}
-								hasMove.add(target);
-								moveList.add(newThrustMove);
-								forceMove.add(target);
-							}
-							
-							newThrustMove = new Navigation(ship, target).navigateTowardsE(gameMap,team.avg(), Constants.MAX_SPEED, true, Constants.MAX_CORRECTIONS, Math.PI/180);
-							if (newThrustMove != null) {
-								if (hasMove.contains(ship)) {
-									moveList.set(hasMove.indexOf(ship),newThrustMove);
-									continue;
-								}
-								hasMove.add(ship);
-								moveList.add(newThrustMove);
-								forceMove.add(ship);
-							}
-						}*/
-						
-						
+				
 					    
 					}
 					
@@ -391,6 +350,20 @@ public class MyBot {
 									cents.add(1);
 									cents.add(2);
 									cents.add(3);
+									if(players == 2)
+									{
+										Planet planet = tools.closestCenterPlanet(gameMap, ship);
+										if(Collections.frequency(targetedPlanets, planet) <=1)
+										{
+											newThrustMove = new Navigation(ship, planet).navigateToDockEG(gameMap,Constants.MAX_SPEED);
+											if (newThrustMove != null) {
+												moveList.add(newThrustMove);
+												targetedPlanets.add(planet);
+												hasMove.add(ship);
+												break;
+											}
+										}
+									}
 									if (tools.enemiesNearby(target, gameMap, safetyZone + 11) || cents.contains(target.getId())) { //adjust +14 also if needed
 										continue;
 									}

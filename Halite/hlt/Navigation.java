@@ -132,16 +132,16 @@ public class Navigation {
 		}
 	}
    
-    public ThrustMove navigateAwayFrom(final GameMap gameMap, final Position targetPos, final int maxThrust,
-            final boolean avoidObstacles, final int maxCorrections, final double angularStepRad) {
-    	 double distancel = ship.getDistanceTo(targetPos);
-		 double angleRadl = ship.orientTowardsInRad(targetPos);
+    public ThrustMove navigateAwayFrom(final GameMap gameMap, final Position targetPos, final int maxThrust,final boolean avoidObstacles, final int maxCorrections, final double angularStepRad)
+    {
+		 double distancel = ship.getDistanceTo(targetPos);
+		 double angleRadl = ship.orientTowardsInRad(targetPos)-Math.PI;
 		 double distancer = ship.getDistanceTo(targetPos);
-		 double angleRadr = ship.orientTowardsInRad(targetPos);
-		 double newTargetDxl;
-		 double newTargetDyl;
-		 double newTargetDxr;
-		 double newTargetDyr;
+		 double angleRadr = ship.orientTowardsInRad(targetPos)-Math.PI;
+		 double newTargetDxl = 0;
+		 double newTargetDyl = 0;
+		 double newTargetDxr = 0;
+		 double newTargetDyr = 0;
 		 Position newTarget = targetPos;
 		 int incr = 0;
 		 boolean togg = false;
@@ -177,6 +177,7 @@ public class Navigation {
 		}
 		
 		final int thrust;
+		ship.setTargetPosition(newTarget);
 		if (togg) {
 			if (distancel < maxThrust) {
 				// Do not round up, since overshooting might cause collision.
@@ -184,10 +185,10 @@ public class Navigation {
 			} else {
 				thrust = maxThrust;
 			}
+			
 			final int angleDeg = Util.angleRadToDegClipped(angleRadl);
-			ThrustMove yes = new ThrustMove(ship, angleDeg-180, thrust);
-			ship.setTargetPosition(tools.newTarget(yes));
-			return yes;
+			ship.setDegree(angleDeg);
+			return new ThrustMove(ship, angleDeg, thrust);
 		}
 		else
 		{
@@ -197,10 +198,10 @@ public class Navigation {
 			} else {
 				thrust = maxThrust;
 			}
+			
 			final int angleDeg = Util.angleRadToDegClipped(angleRadr);
-			ThrustMove yes = new ThrustMove(ship, angleDeg-180, thrust);
-			ship.setTargetPosition(tools.newTarget(yes));
-			return yes;
+			ship.setDegree(angleDeg);
+			return new ThrustMove(ship, angleDeg, thrust);
 		}
     }
 	public ThrustMove navigateToAttack(final GameMap gameMap, final Position targetPos, final int speed) {

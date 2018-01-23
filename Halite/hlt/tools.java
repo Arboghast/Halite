@@ -296,19 +296,17 @@ public class tools {
 	    	return null;
 		}
 		public static Planet closestCenterPlanet(GameMap gameMap, Ship ship) {
-			Map<Double,Planet> everyEntityDistance = gameMap.nearbyPlanetsByDistance(ship);
-	    	Map<Double,Planet> treeMap = new TreeMap<Double, Planet>(everyEntityDistance);
-	    	Set<Double> keys = treeMap.keySet(); 
-	    	int i = 0;
-	    	for(Double key: keys){
-	    		i++;
+			Map<Integer, Planet> everyEntityDistance = gameMap.getAllPlanets();
+	    	Map<Integer,Planet> treeMap = new TreeMap<Integer, Planet>(everyEntityDistance);
+	    	Set<Integer> keys = treeMap.keySet(); 
+	    	for(int key: keys){
 	    		Planet cycle = treeMap.get(key);
 	    		int id = cycle.getId();
-				if ((id == 0 || id == 1 || id == 2 || id == 3)  && i <= 3 ) {
+				if ((id == 0 || id == 1 || id == 2 || id == 3)  ) {
 					return cycle;
 				}
 	    	}
-	    	return null;
+	    	return gameMap.getPlanet(0);
 		}
 		public static Ship getClosestAlly(Ship target, GameMap gameMap) {
 			Map<Double,Ship> everyEntityDistance = gameMap.nearbyShipsByDistance(target);
@@ -316,12 +314,27 @@ public class tools {
 	    	Set<Double> keys = treeMap.keySet(); 
 	    	for(Double key: keys){
 	    		Ship ally = treeMap.get(key);
-	    		if(ally.getId() == gameMap.getMyPlayerId())
+	    		if(ally.getId() == gameMap.getMyPlayerId() && key < 35)
 	    		{
 	    			return ally;
 	    		}
 	    	}
 	    	return null;
+		}
+		
+		public static boolean isAttackingDockedAlly(GameMap gameMap, Ship target)
+		{
+			Map<Double,Ship> everyEntityDistance = gameMap.nearbyShipsByDistance(target);
+	    	Map<Double, Ship> treeMap = new TreeMap<Double, Ship>(everyEntityDistance);
+	    	Set<Double> keys = treeMap.keySet(); 
+	    	for(Double key: keys){
+	    		Ship ally = treeMap.get(key);
+	    		if(key < 7 && ally.getOwner() == gameMap.getMyPlayerId() && ally.getDockingStatus() != Ship.DockingStatus.Undocked)
+	    		{
+	    			return true;
+	    		}
+	    	}
+	    	return false;
 		}
 
 		public static Ship beingAttacked(Ship ship, GameMap gameMap) {
@@ -541,7 +554,7 @@ public class tools {
 			int counter = 0;
 			for(Ship ships : closeShips.values())
 			{
-				if(ships.getOwner() == ship.getOwner() && ships.getDockingStatus() == Ship.DockingStatus.Undocked && ship.getDistanceTo(ships) < 16) //if ships near target is on the same team as the target and is mobile and is within 15 units of the target
+				if(ships.getOwner() == ship.getOwner() && ships.getDockingStatus() == Ship.DockingStatus.Undocked && ship.getDistanceTo(ships) < 25) //if ships near target is on the same team as the target and is mobile and is within 15 units of the target
 				{
 					counter++;
 				}
@@ -704,6 +717,63 @@ public class tools {
 					gameMap.remove(ss);
 				}
 			}
+		}
+
+
+		public static int nearWall(GameMap gameMap,Ship ship) {
+			int w = gameMap.getHeight();
+			int x = gameMap.getWidth();
+			
+			double one = ship.getXPos();
+			double two = ship.getYPos();
+			if(one-6 < 0)
+			{
+				return 1;
+			}
+			if(one + 6 > x)
+			{
+				return 2;
+			}
+			if(two - 6 < 0)
+			{
+				return 3;
+			}
+			if(two + 6 > w)
+			{
+				return 4;
+			}
+			return   0;
+			
+			
+		}
+
+
+		public static Position closestWall(GameMap gameMap, Ship ship) {
+			Position one = new Position(0,ship.getYPos());
+			Position two = new Position(gameMap.getWidth(),ship.getYPos());
+			Position three = new Position(ship.getXPos(),0);
+			Position four = new Position(ship.getXPos(),gameMap.getHeight());
+			double a = distance(ship,one);
+			double b = distance(ship,two);
+			double c = distance(ship,three);
+			double d = distance(ship,four);
+			if(a < b && a < c && a < d )
+			{
+				return one;
+			}
+			if(b < a && b < c && b < d )
+			{
+				return two;
+			}
+			if(c < a && c < b && c < d)
+			{
+				return three;
+			}
+			if(d < a && d < b && d < c )
+			{
+				return four;
+			}
+			return one;
 		}
 
 
